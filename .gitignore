@@ -1,0 +1,26 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# LICENSED DATA. The shared cache lives at $WRDSLAB_CACHE (default
+# ~/.wrdslab/cache), outside every repo. These are a second line of defence.
+cache/
+*.parquet
+
+# Large derived artifacts belong in a release, not in git history.
+results/**/*.parquet
+results/**/*.csv
+results/**/*.pkl
+results/**/*.npz
+
+.pgpass
+*.pem
+*.key
+.env
+.env.*
+secrets.*
+.DS_Store
