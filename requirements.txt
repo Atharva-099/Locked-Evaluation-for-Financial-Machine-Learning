@@ -1,3 +1,11 @@
-# Pinned so this project cannot move underneath its own published results
-# when the shared library changes for another paper.
-wrdslab @ git+https://github.com/Atharva-099/wrdslab.git@803fbeec4aaf1bb3c82a0f9ad078de4de9c64350
+# Exact versions this project was built and checked with (Python 3.11.8).
+pandas==2.2.3
+numpy==2.4.6
+pyarrow==25.0.1
+scipy==1.17.1
+scikit-learn==1.9.0
+lightgbm==4.7.0
+joblib==1.6.0
+plotly==7.0.0
+streamlit==1.64.0
+pytest==9.1.1

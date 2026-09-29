@@ -16,6 +16,9 @@ results/**/*.parquet
 results/**/*.csv
 results/**/*.pkl
 results/**/*.npz
+results/**/*.joblib
+results/**/*.html
+results/runs/**/models/
 
 .pgpass
 *.pem
