@@ -11,7 +11,8 @@ from . import config
 REPORT_FILES = {
     "volatility": ("report_info.json", "model_summary.json", "comparisons.json",
                    "monthly_losses.parquet", "importance.parquet"),
-    "returns": ("report_info.json", "model_summary.json", "comparisons.json", "monthly_metrics.parquet"),
+    "returns": ("report_info.json", "model_summary.json", "comparisons.json",
+                "monthly_metrics.parquet", "monthly_portfolios.parquet"),
     "delisting": ("report_info.json", "model_summary.json", "comparisons.json", "pairwise_comparisons.json",
                   "monthly_metrics.parquet", "calibration.parquet", "budget_metrics.parquet"),
 }

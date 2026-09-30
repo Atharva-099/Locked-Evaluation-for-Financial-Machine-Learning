@@ -32,6 +32,17 @@ ADVERSE_CODE_REASONS = {
     585: "public interest", 587: "violation", 589: "unlisted", 591: "SEC required",
 }
 ADVERSE_CODES = frozenset(ADVERSE_CODE_REASONS)
+SENSITIVITY_CODE_SETS = {
+    # Removes ambiguous administrative/voluntary removals while retaining
+    # liquidation, financial-condition, low-price, and enforcement outcomes.
+    "financial_distress": frozenset({
+        400, 450, 460, 470, 480, 490, 552, 560, 561, 574,
+        580, 581, 582, 583, 584, 585, 587, 591,
+    }),
+    # A deliberately strict endpoint used to check whether conclusions depend
+    # on the broader exchange-removal definition.
+    "liquidation_bankruptcy": frozenset({400, 450, 460, 470, 480, 490, 574}),
+}
 PANEL_MODULES = ["config.py", "contract.py", "data/raw.py", "tasks/crsp_monthly.py", "tasks/delisting.py"]
 
 
@@ -41,8 +52,9 @@ class DelistingConfig:
     horizon_months: int = HORIZON_MONTHS
 
 
-def _next_adverse_events(features: pd.DataFrame, delist: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
-    events = delist[delist["dlstcd"].isin(ADVERSE_CODES)][["permno", "dlstdt", "dlstcd"]].copy()
+def _next_adverse_events(features: pd.DataFrame, delist: pd.DataFrame,
+                         adverse_codes: frozenset[int] = ADVERSE_CODES) -> tuple[np.ndarray, np.ndarray]:
+    events = delist[delist["dlstcd"].isin(adverse_codes)][["permno", "dlstdt", "dlstcd"]].copy()
     events["dlstdt"] = pd.to_datetime(events["dlstdt"])
     events = events.sort_values(["permno", "dlstdt", "dlstcd"])
     dates = np.full(len(features), np.datetime64("NaT"), dtype="datetime64[ns]")
@@ -61,6 +73,19 @@ def _next_adverse_events(features: pd.DataFrame, delist: pd.DataFrame) -> tuple[
         dates[positions[valid]] = event_dates[found[valid]]
         codes[positions[valid]] = event_codes[found[valid]]
     return dates, codes
+
+
+def relabel_panel(panel: pd.DataFrame, delist: pd.DataFrame, adverse_codes: frozenset[int]) -> pd.DataFrame:
+    """Recompute labels from raw delisting events while keeping features and timing fixed."""
+    work = panel.reset_index(drop=True).copy()
+    next_date, next_code = _next_adverse_events(work, delist, adverse_codes)
+    work["next_adverse_date"] = pd.to_datetime(next_date)
+    work["next_adverse_code"] = next_code
+    positive = work["next_adverse_date"].notna() & (work["next_adverse_date"] <= work["label_end_time"])
+    work["target_adverse_delisting"] = positive.astype("int8")
+    work.loc[~positive, ["next_adverse_date", "next_adverse_code"]] = [pd.NaT, np.nan]
+    validate_panel(work)
+    return work
 
 
 def build_panel(

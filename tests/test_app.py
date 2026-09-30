@@ -15,7 +15,8 @@ from test_report import FIRST, with_meta
 from test_sweeps import AUDIT_LONG
 
 APP = Path(__file__).resolve().parents[1] / "app"
-VIEWS = ["views/home.py", "views/comparison.py", "views/results.py", "views/misses.py", "views/timeline.py", "views/tweaks.py"]
+VIEWS = ["views/home.py", "views/comparison.py", "views/results.py", "views/custom_test.py",
+         "views/misses.py", "views/timeline.py", "views/tweaks.py"]
 
 
 def point_results_at(monkeypatch, root: Path):

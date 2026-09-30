@@ -1,14 +1,17 @@
-"""SIC code to Fama-French 12 industries. Used only to break results down, never as a model input.
+"""SIC code to Fama-French 12 industries. Used for breakdowns, never as a model input.
 
-STATUS: typed from the published Fama-French 12-industry definition; not yet
-checked line by line against the official Siccodes12 file.
+The ranges were checked exactly against Kenneth French's official
+``Siccodes12.txt`` distribution on 2026-09-30.
 """
 from __future__ import annotations
 
 import numpy as np
 import pandas as pd
 
-VERIFIED_AGAINST_OFFICIAL_FILE = False
+VERIFIED_AGAINST_OFFICIAL_FILE = True
+OFFICIAL_SOURCE = "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/Siccodes12.zip"
+OFFICIAL_ZIP_SHA256 = "d801141acf039f2e06e6d4d9ba2b3992e9747a1d82fabd53ef21da4a3af79fff"
+OFFICIAL_TEXT_SHA256 = "55b51d1dc6939a570cd866824e9d49a9b16c0ad6247286b676aca25af8c78409"
 
 FF12_RANGES = {
     "NoDur": [(100, 999), (2000, 2399), (2700, 2749), (2770, 2799), (3100, 3199), (3940, 3989)],

@@ -161,7 +161,11 @@ def badge(r: dict) -> None:
     elif r["type"] == "exploratory":
         years = r["test_years"]
         span = f"{years[0]} to {years[-1]}" if isinstance(years, list) and years else years
-        st.caption(f"Exploratory results, test years {span}. The sealed years 2022 to 2024 are kept for one final check.")
+        st.caption(f"Exploratory results, test years {span}. Compare with the locked study for the final holdout.")
+    elif r["type"] == "locked":
+        years = r["test_years"]
+        span = f"{years[0]} to {years[-1]}" if isinstance(years, list) and years else years
+        st.caption(f"Locked holdout results, test years {span}. The specification was frozen before these outcomes were inspected.")
 
 
 @st.cache_data(show_spinner=False)

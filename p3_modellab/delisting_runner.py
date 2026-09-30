@@ -50,7 +50,10 @@ def default_test_years(audit: dict, run_type: str) -> list[int]:
     return list(range(2000, first_locked - 1))
 
 
-def run_spec(models: list[str], seed: int, quick: bool, cfg: delisting.DelistingConfig) -> dict:
+def run_spec(models: list[str], seed: int, quick: bool, cfg: delisting.DelistingConfig,
+             label_definition: str = "primary",
+             adverse_code_reasons: dict[int, str] | None = None) -> dict:
+    adverse_code_reasons = adverse_code_reasons or delisting.ADVERSE_CODE_REASONS
     return _canonical({
         "task": delisting.TASK,
         "panel_config": asdict(cfg),
@@ -62,6 +65,8 @@ def run_spec(models: list[str], seed: int, quick: bool, cfg: delisting.Delisting
         "firm_sample_percent": QUICK_FIRM_SHARE if quick else 100,
         "selection_metric": "validation log loss",
         "probability_target": "adverse delisting in months t+1 through t+12",
+        "label_definition": label_definition,
+        "adverse_codes": sorted(adverse_code_reasons),
         "sealed_outcome_start": "2022-01-01",
         "embargo_year": 2021,
     })
@@ -114,6 +119,8 @@ def run(
     panel: pd.DataFrame | None = None,
     audit: dict | None = None,
     out_root: Path | None = None,
+    label_definition: str = "primary",
+    adverse_code_reasons: dict[int, str] | None = None,
     progress=print,
 ) -> Path:
     started_hash = code_hash()
@@ -132,7 +139,8 @@ def run(
         panel_info = {"source": "supplied by caller", "rows": int(len(panel))}
     validate_panel(panel)
 
-    spec = run_spec(models, seed, quick, cfg)
+    adverse_code_reasons = adverse_code_reasons or delisting.ADVERSE_CODE_REASONS
+    spec = run_spec(models, seed, quick, cfg, label_definition, adverse_code_reasons)
     lock = _check_lock(spec, allow_rerun) if run_type == "locked" else None
     years = test_years or default_test_years(audit, run_type)
     reserve = reserved_start(audit)
@@ -140,7 +148,8 @@ def run(
     folds = walk_forward(work, years, reserve, run_type, validation_months=VALIDATION_MONTHS,
                          refit_every=QUICK_REFIT_EVERY if quick else 1)
 
-    run_id = f"{datetime.now():%Y%m%d-%H%M%S}-{uuid.uuid4().hex[:4]}-{delisting.TASK}-{run_type}{'-quick' if quick else ''}"
+    label_suffix = "" if label_definition == "primary" else f"-{label_definition}"
+    run_id = f"{datetime.now():%Y%m%d-%H%M%S}-{uuid.uuid4().hex[:4]}-{delisting.TASK}{label_suffix}-{run_type}{'-quick' if quick else ''}"
     out = Path(out_root or config.RUNS_DIR) / run_id
     (out / "models").mkdir(parents=True, exist_ok=False)
     by_id = work.set_index("row_id")
@@ -184,7 +193,8 @@ def run(
         "audit": {"created_utc": audit.get("created_utc"), "coverage": audit.get("coverage"),
                   "cutoffs": audit.get("cutoffs"), "data_sha256": source_hashes},
         "panel": panel_info, "feature_descriptions": delisting.FEATURE_DESCRIPTIONS,
-        "adverse_codes": {str(k): v for k, v in delisting.ADVERSE_CODE_REASONS.items()},
+        "label_definition": label_definition,
+        "adverse_codes": {str(k): v for k, v in adverse_code_reasons.items()},
         "folds": records, "n_predictions": int(len(pred)), "total_seconds": round(time.time() - started, 1),
         "environment": environment(),
     }

@@ -13,7 +13,7 @@ PARAMS = [
     ("Forecast", "next month's price swing, made at each month end"),
     ("Stocks", "US common stocks, about 4,000 to 7,000 each month"),
     ("Data", "1991 to 2024, about 2 million stock-months"),
-    ("Tested on", "2000 to 2021, one year at a time; 2022 to 2024 kept sealed"),
+    ("Tested on", "2000 to 2021 exploratory; 2022 to 2024 locked holdout complete"),
     ("Training", "models retrained every year on past data only"),
     ("Score", "QLIKE, the standard error measure for swings (lower is better)"),
 ]

@@ -74,6 +74,8 @@ def build_report(run_dir: Path, panel: pd.DataFrame | None = None, first_listed:
         "trimmed_view": f"RETROSPECTIVE: drops examples whose answer is above the {metrics.TRIM_QUANTILE:.1%} point of all test answers",
         "slice_minimums": {"examples": misses.MIN_OBS, "firms": misses.MIN_FIRMS, "months": misses.MIN_MONTHS, "months_for_year_slices": misses.MIN_MONTHS_YEAR_SLICE},
         "industry_mapping_verified": industry.VERIFIED_AGAINST_OFFICIAL_FILE,
+        "industry_mapping_source": industry.OFFICIAL_SOURCE,
+        "industry_mapping_sha256": industry.OFFICIAL_TEXT_SHA256,
         "importance_rows_per_period": importance_rows,
     }
     (out / "report_info.json").write_text(json.dumps(info, indent=2))

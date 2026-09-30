@@ -212,6 +212,26 @@ stats([("Head-to-head", verdict, f"{n_months} paired months"),
        (f"First minus second {unit}", f"{estimate:+.4f}", f"95% interval {lo:+.4f} to {hi:+.4f}")])
 st.caption("The monthly scores were computed during reporting. This selection only takes their paired difference and confidence interval.")
 
+if run["task"] == "returns" and "mean_turnover" in summary:
+    st.subheader("Turnover and transaction-cost comparison")
+    costs = summary[summary["mean_gross_return"].notna()].copy()
+    costs = costs[["model", "mean_gross_return", "mean_turnover", "mean_net_return_10bps",
+                   "mean_net_return_25bps", "mean_net_return_50bps", "break_even_cost_bps"]]
+    costs["model"] = costs["model"].map(lambda model: DISPLAY.get(model, model))
+    for column in ["mean_gross_return", "mean_turnover", "mean_net_return_10bps",
+                   "mean_net_return_25bps", "mean_net_return_50bps"]:
+        costs[column] *= 100
+    costs = costs.rename(columns={
+        "model": "Model", "mean_gross_return": "Gross return (%)", "mean_turnover": "Turnover (%)",
+        "mean_net_return_10bps": "Net at 10 bps (%)", "mean_net_return_25bps": "Net at 25 bps (%)",
+        "mean_net_return_50bps": "Net at 50 bps (%)", "break_even_cost_bps": "Break-even cost (bps)",
+    })
+    st.dataframe(costs, hide_index=True, width="stretch")
+    st.caption(
+        "Equal-weight top-minus-bottom forecast deciles. Costs are charged per dollar traded. "
+        "Market impact, capacity, borrow availability, and short-sale fees remain outside this diagnostic."
+    )
+
 importance_path = run["report"] / "importance.parquet"
 if run["task"] == "volatility" and importance_path.exists():
     st.subheader("Compare saved factor reliance")

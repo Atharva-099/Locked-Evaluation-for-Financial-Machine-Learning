@@ -115,8 +115,12 @@ def test_return_runner_and_report_end_to_end(tmp_path):
     assert pred.groupby("model")["row_id"].apply(frozenset).nunique() == 1
     report = build_report(out)
     assert (report / "REPORT.md").exists()
+    assert (report / "monthly_portfolios.parquet").exists()
     assert {x["model"] for x in json.loads((report / "model_summary.json").read_text())} == {"zero", "reversal", "ridge"}
     assert {x["model"] for x in json.loads((report / "comparisons.json").read_text())} == {"ridge"}
+    portfolio = pd.read_parquet(report / "monthly_portfolios.parquet")
+    assert portfolio.loc[portfolio["model"] == "zero", "gross_return"].isna().all()
+    assert portfolio.loc[portfolio["model"] == "ridge", "turnover"].dropna().between(0, 2).all()
 
 
 def test_adverse_code_definition_excludes_mergers_active_and_fund_conversion():

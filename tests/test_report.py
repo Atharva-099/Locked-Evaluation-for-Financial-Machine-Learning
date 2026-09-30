@@ -146,4 +146,5 @@ def test_report_is_reproducible(tmp_results):
     pd.testing.assert_frame_equal(first[0], pd.read_json(rep / "comparisons.json"))
     pd.testing.assert_frame_equal(first[1], pd.read_parquet(rep / "importance_by_period.parquet"))
     info = json.loads((rep / "report_info.json").read_text())
-    assert info["industry_mapping_verified"] is False
+    assert info["industry_mapping_verified"] is True
+    assert len(info["industry_mapping_sha256"]) == 64
