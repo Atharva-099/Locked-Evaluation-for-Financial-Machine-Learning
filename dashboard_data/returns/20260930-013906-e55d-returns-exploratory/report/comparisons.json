@@ -1,0 +1,26 @@
+[
+  {
+    "model":"lightgbm",
+    "baseline":"reversal",
+    "metric":"rank_ic",
+    "estimate":0.0258220846,
+    "ci_lo":0.0072148304,
+    "ci_hi":0.0468097506,
+    "p_value":0.002,
+    "n_months":261,
+    "block":12,
+    "mse_difference":-0.0369525964
+  },
+  {
+    "model":"ridge",
+    "baseline":"reversal",
+    "metric":"rank_ic",
+    "estimate":-0.0186899975,
+    "ci_lo":-0.0313056752,
+    "ci_hi":-0.0051848024,
+    "p_value":0.004,
+    "n_months":263,
+    "block":12,
+    "mse_difference":-0.0370923575
+  }
+]

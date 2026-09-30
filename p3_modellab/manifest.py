@@ -35,7 +35,8 @@ def data_quick_fingerprint(sources: list[str], daily: bool) -> dict:
 
 
 def environment() -> dict:
-    pkgs = ["pandas", "numpy", "pyarrow", "scipy", "scikit-learn", "lightgbm", "joblib", "plotly", "streamlit"]
+    pkgs = ["pandas", "numpy", "pyarrow", "scipy", "scikit-learn", "lightgbm", "xgboost", "catboost",
+            "joblib", "plotly", "streamlit"]
     versions = {}
     for p in pkgs:
         try:

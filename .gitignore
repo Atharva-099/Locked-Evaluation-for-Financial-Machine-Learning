@@ -11,6 +11,10 @@ __pycache__/
 cache/
 *.parquet
 
+# Small aggregate-only dashboard reports are safe to deploy. The exporter
+# excludes row-level forecasts, source panels, and fitted models.
+!dashboard_data/**/*.parquet
+
 # Large derived artifacts belong in a release, not in git history.
 results/**/*.parquet
 results/**/*.csv

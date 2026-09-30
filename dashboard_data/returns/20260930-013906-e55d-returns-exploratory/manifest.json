@@ -1,0 +1,2208 @@
+{
+  "run_id": "20260930-013906-e55d-returns-exploratory",
+  "created_utc": "2026-09-29T20:12:55+00:00",
+  "run_type": "exploratory",
+  "quick": false,
+  "evidence": true,
+  "task": "returns",
+  "test_years": [
+    2000,
+    2001,
+    2002,
+    2003,
+    2004,
+    2005,
+    2006,
+    2007,
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021
+  ],
+  "reserved_start": "2022-01-01",
+  "spec": {
+    "features": [
+      "ret_1m",
+      "ret_3m",
+      "ret_6m",
+      "momentum_12_2",
+      "volatility_12m",
+      "log_mcap",
+      "log_price",
+      "log_turnover",
+      "log_dollar_volume",
+      "market_ret_1m",
+      "is_nyse",
+      "is_amex",
+      "is_nasdaq"
+    ],
+    "firm_sample_percent": 100,
+    "models": [
+      {
+        "kind": "baseline",
+        "name": "zero"
+      },
+      {
+        "kind": "baseline",
+        "name": "reversal"
+      },
+      {
+        "alphas": [
+          100.0,
+          10000.0,
+          1000000.0,
+          100000000.0
+        ],
+        "features": [
+          "ret_1m",
+          "ret_3m",
+          "ret_6m",
+          "momentum_12_2",
+          "volatility_12m",
+          "log_mcap",
+          "log_price",
+          "log_turnover",
+          "log_dollar_volume",
+          "market_ret_1m",
+          "is_nyse",
+          "is_amex",
+          "is_nasdaq"
+        ],
+        "kind": "model",
+        "name": "ridge"
+      },
+      {
+        "features": [
+          "ret_1m",
+          "ret_3m",
+          "ret_6m",
+          "momentum_12_2",
+          "volatility_12m",
+          "log_mcap",
+          "log_price",
+          "log_turnover",
+          "log_dollar_volume",
+          "market_ret_1m",
+          "is_nyse",
+          "is_amex",
+          "is_nasdaq"
+        ],
+        "kind": "model",
+        "learning_rate": 0.05,
+        "leaves": [
+          15,
+          63
+        ],
+        "max_rounds": 1200,
+        "name": "lightgbm",
+        "patience": 75,
+        "seed": 0
+      }
+    ],
+    "panel_config": {
+      "first_prediction_month": "1991-01"
+    },
+    "refit_every": 1,
+    "seed": 0,
+    "selection_metric": "mean monthly Spearman rank IC on validation rows; MSE breaks ties",
+    "target_training_clip": "0.1 and 99.9 percentiles learned from each training fold",
+    "task": "returns",
+    "validation_months": 24
+  },
+  "spec_hash": "19f730205243bd76",
+  "lock": null,
+  "code_hash": "fefbf82c7c0d8f07",
+  "code_changed_during_run": false,
+  "audit": {
+    "created_utc": "2026-09-25T20:30:30+00:00",
+    "coverage": {
+      "msf_last_month": "2024-12",
+      "daily_last_date": "2024-12-31",
+      "delist_last_date": "2024-12-31",
+      "last_complete_month": "2024-12",
+      "empty_daily_files": [
+        2025
+      ]
+    },
+    "cutoffs": {
+      "one_month_ahead_last_prediction_month": "2024-11",
+      "twelve_month_ahead_last_prediction_month": "2023-12"
+    },
+    "data_sha256": {
+      "msf": null,
+      "msenames": null,
+      "msedelist": null,
+      "ccm": null,
+      "fundq": null
+    }
+  },
+  "panel": {
+    "source": "results/panels",
+    "meta_created_utc": "2026-09-29T20:00:58+00:00",
+    "code_hash": "664b06727cab3c35",
+    "summary": {
+      "rows": 1992414,
+      "excluded": 90071,
+      "excluded_by_reason": {
+        "before_first_prediction_month": 69615,
+        "missing_prediction_month_return": 13797,
+        "after_last_complete_prediction_month": 3794,
+        "missing_next_month_total_return": 2865
+      },
+      "labels_with_delisting_return": 14188,
+      "first_prediction_month": "199101",
+      "last_prediction_month": "202411",
+      "target_mean": 0.011012280449848911,
+      "target_median": 0.0
+    }
+  },
+  "feature_descriptions": {
+    "ret_1m": "stock return in the prediction month",
+    "ret_3m": "compounded stock return over prediction month and the prior 2 months",
+    "ret_6m": "compounded stock return over prediction month and the prior 5 months",
+    "momentum_12_2": "compounded return from months t-12 through t-2",
+    "volatility_12m": "standard deviation of monthly returns from t-11 through t, requiring at least 6 observations",
+    "log_mcap": "log of absolute month-end price times shares outstanding",
+    "log_price": "log of absolute month-end price",
+    "log_turnover": "log of monthly volume divided by shares outstanding",
+    "log_dollar_volume": "log of absolute price times monthly volume",
+    "market_ret_1m": "equal-weighted common-stock return in the prediction month",
+    "is_nyse": "one when the security is listed on NYSE",
+    "is_amex": "one when the security is listed on AMEX",
+    "is_nasdaq": "one when the security is listed on Nasdaq"
+  },
+  "folds": [
+    {
+      "fold": 0,
+      "test_years": [
+        2000
+      ],
+      "fit_cutoff": "2000-01-31",
+      "train_label_known_by": "1998-01-31",
+      "n_train": 542500,
+      "n_val": 166817,
+      "n_test": 77874,
+      "train_ids_sha256": "18f1759db0cffab1",
+      "val_ids_sha256": "ad57392482de98de",
+      "test_ids_sha256": "13d4e982596c136b",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": 0.0167168007853941,
+              "val_mse": 0.05911793813873974,
+              "seconds": 0.68
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": 0.01558798551011264,
+              "val_mse": 0.05912689542667806,
+              "seconds": 0.646
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.01313706060614471,
+              "val_mse": 0.05938848184748084,
+              "seconds": 0.65
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.03298880341502616,
+              "val_mse": 0.059577255044706116,
+              "seconds": 0.667
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.675,
+              1.5244061900000565
+            ]
+          },
+          "fit_predict_seconds": 2.66
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 119,
+              "val_rank_ic": 0.06894548341601792,
+              "val_mse": 0.05876715522092707,
+              "seconds": 1.43
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 40,
+              "val_rank_ic": 0.06759177867261294,
+              "val_mse": 0.059112376907142966,
+              "seconds": 1.65
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 119,
+            "target_clip": [
+              -0.675,
+              1.5244061900000565
+            ]
+          },
+          "fit_predict_seconds": 3.17
+        }
+      }
+    },
+    {
+      "fold": 1,
+      "test_years": [
+        2001
+      ],
+      "fit_cutoff": "2001-01-31",
+      "train_label_known_by": "1999-01-31",
+      "n_train": 628850,
+      "n_val": 158341,
+      "n_test": 71008,
+      "train_ids_sha256": "f6ab1e98524f5082",
+      "val_ids_sha256": "c3c8c417772dc2c9",
+      "test_ids_sha256": "8dae99378d813ff9",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": 0.019355550246204497,
+              "val_mse": 0.07319261564422423,
+              "seconds": 0.849
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": 0.01889590046082079,
+              "val_mse": 0.07318938348145318,
+              "seconds": 0.769
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.0013029405322938896,
+              "val_mse": 0.07327566341730994,
+              "seconds": 0.875
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.016537188164039453,
+              "val_mse": 0.07346904884490969,
+              "seconds": 0.809
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.6935978300000001,
+              1.6
+            ]
+          },
+          "fit_predict_seconds": 3.32
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 4,
+              "val_rank_ic": 0.05286323179218871,
+              "val_mse": 0.07336450302621006,
+              "seconds": 0.72
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 8,
+              "val_rank_ic": 0.044912029508763135,
+              "val_mse": 0.07330487523637742,
+              "seconds": 1.32
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 4,
+            "target_clip": [
+              -0.6935978300000001,
+              1.6
+            ]
+          },
+          "fit_predict_seconds": 2.05
+        }
+      }
+    },
+    {
+      "fold": 2,
+      "test_years": [
+        2002
+      ],
+      "fit_cutoff": "2002-01-31",
+      "train_label_known_by": "2000-01-31",
+      "n_train": 709317,
+      "n_val": 148882,
+      "n_test": 64593,
+      "train_ids_sha256": "99ad6142640ed427",
+      "val_ids_sha256": "f7d5fc1f8ca22c0f",
+      "test_ids_sha256": "9c8c1db182c878ba",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": 0.011761412235204619,
+              "val_mse": 0.0718415360312743,
+              "seconds": 0.893
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": 0.011944923140807398,
+              "val_mse": 0.07183492889666211,
+              "seconds": 0.874
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.0340644280710764,
+              "val_mse": 0.07188503989196329,
+              "seconds": 0.89
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.062818098789142,
+              "val_mse": 0.0720469625224446,
+              "seconds": 0.865
+            }
+          ],
+          "chosen": {
+            "alpha": 10000.0,
+            "target_clip": [
+              -0.6875,
+              1.696553512000011
+            ]
+          },
+          "fit_predict_seconds": 3.54
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 7,
+              "val_rank_ic": -0.029398720195950693,
+              "val_mse": 0.07176482602401298,
+              "seconds": 0.75
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 14,
+              "val_rank_ic": 0.01404987014385294,
+              "val_mse": 0.07170258587820463,
+              "seconds": 1.42
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 14,
+            "target_clip": [
+              -0.6875,
+              1.696553512000011
+            ]
+          },
+          "fit_predict_seconds": 2.19
+        }
+      }
+    },
+    {
+      "fold": 3,
+      "test_years": [
+        2003
+      ],
+      "fit_cutoff": "2003-01-31",
+      "train_label_known_by": "2001-01-31",
+      "n_train": 787191,
+      "n_val": 135601,
+      "n_test": 59720,
+      "train_ids_sha256": "33347f1f67e2a778",
+      "val_ids_sha256": "928c81f17ff52cdf",
+      "test_ids_sha256": "7ab2e70e02aeb714",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": 0.04150637413383894,
+              "val_mse": 0.050928438455270675,
+              "seconds": 0.951
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": 0.041756110749844595,
+              "val_mse": 0.050923041600017,
+              "seconds": 0.91
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": 0.005132061062016493,
+              "val_mse": 0.05090336220854259,
+              "seconds": 0.909
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.026237697217802832,
+              "val_mse": 0.05099806973000935,
+              "seconds": 0.946
+            }
+          ],
+          "chosen": {
+            "alpha": 10000.0,
+            "target_clip": [
+              -0.71109276,
+              1.8247908100000614
+            ]
+          },
+          "fit_predict_seconds": 3.73
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 12,
+              "val_rank_ic": 0.07837986582664384,
+              "val_mse": 0.050898664272509817,
+              "seconds": 0.92
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 12,
+              "val_rank_ic": 0.0803454111264028,
+              "val_mse": 0.0508950099222407,
+              "seconds": 1.47
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 12,
+            "target_clip": [
+              -0.71109276,
+              1.8247908100000614
+            ]
+          },
+          "fit_predict_seconds": 2.42
+        }
+      }
+    },
+    {
+      "fold": 4,
+      "test_years": [
+        2004
+      ],
+      "fit_cutoff": "2004-01-30",
+      "train_label_known_by": "2002-01-30",
+      "n_train": 852585,
+      "n_val": 129927,
+      "n_test": 57760,
+      "train_ids_sha256": "24377d0e06e03f76",
+      "val_ids_sha256": "9b651aedb6de59d1",
+      "test_ids_sha256": "9702d30777a8b58d",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": 0.05553033881922948,
+              "val_mse": 0.042014496152228444,
+              "seconds": 1.029
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": 0.05553783110552612,
+              "val_mse": 0.04202198678303192,
+              "seconds": 0.993
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": 0.04331364198752682,
+              "val_mse": 0.04229384192658154,
+              "seconds": 0.992
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": 0.02236575462085678,
+              "val_mse": 0.04253370397329067,
+              "seconds": 0.997
+            }
+          ],
+          "chosen": {
+            "alpha": 10000.0,
+            "target_clip": [
+              -0.727129336,
+              1.82297536799997
+            ]
+          },
+          "fit_predict_seconds": 4.03
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 115,
+              "val_rank_ic": 0.07723370902034647,
+              "val_mse": 0.04137561702194795,
+              "seconds": 1.71
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 45,
+              "val_rank_ic": 0.07424559238866621,
+              "val_mse": 0.04153612037685951,
+              "seconds": 2.13
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 115,
+            "target_clip": [
+              -0.727129336,
+              1.82297536799997
+            ]
+          },
+          "fit_predict_seconds": 3.89
+        }
+      }
+    },
+    {
+      "fold": 5,
+      "test_years": [
+        2005
+      ],
+      "fit_cutoff": "2005-01-31",
+      "train_label_known_by": "2003-01-31",
+      "n_train": 922792,
+      "n_val": 117480,
+      "n_test": 57077,
+      "train_ids_sha256": "855bc40a985dbe58",
+      "val_ids_sha256": "0b8bafb467d943f7",
+      "test_ids_sha256": "658f23f6523a1183",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": 0.013002119569548215,
+              "val_mse": 0.029638808780203845,
+              "seconds": 1.178
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": 0.012809153748106488,
+              "val_mse": 0.0296422312568446,
+              "seconds": 2.843
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": 0.005864599087674338,
+              "val_mse": 0.029774103625813862,
+              "seconds": 2.006
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.00215688632894497,
+              "val_mse": 0.029937274350210152,
+              "seconds": 1.653
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.73913,
+              1.8
+            ]
+          },
+          "fit_predict_seconds": 7.7
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 124,
+              "val_rank_ic": 0.051380382402816914,
+              "val_mse": 0.029126752156877957,
+              "seconds": 4.33
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 37,
+              "val_rank_ic": 0.041167758904751654,
+              "val_mse": 0.02936409508775769,
+              "seconds": 2.88
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 124,
+            "target_clip": [
+              -0.73913,
+              1.8
+            ]
+          },
+          "fit_predict_seconds": 7.3
+        }
+      }
+    },
+    {
+      "fold": 6,
+      "test_years": [
+        2006
+      ],
+      "fit_cutoff": "2006-01-31",
+      "train_label_known_by": "2004-01-31",
+      "n_train": 982512,
+      "n_val": 114837,
+      "n_test": 56194,
+      "train_ids_sha256": "81fc73a1e54b3875",
+      "val_ids_sha256": "0e8dd5373bc4df05",
+      "test_ids_sha256": "889a571e7475ef40",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": -0.02315020692080344,
+              "val_mse": 0.02060802333045726,
+              "seconds": 1.946
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": -0.0232442456336957,
+              "val_mse": 0.02060252689004036,
+              "seconds": 1.363
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.039545763601334404,
+              "val_mse": 0.02048318268099314,
+              "seconds": 2.173
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.05554795010895186,
+              "val_mse": 0.02048289929039486,
+              "seconds": 1.529
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.736330072,
+              1.8
+            ]
+          },
+          "fit_predict_seconds": 7.04
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 1,
+              "val_rank_ic": -0.030002555005914394,
+              "val_mse": 0.020511348008960234,
+              "seconds": 1.22
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 1,
+              "val_rank_ic": -0.010824846224753892,
+              "val_mse": 0.020473405360024722,
+              "seconds": 3.06
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 1,
+            "target_clip": [
+              -0.736330072,
+              1.8
+            ]
+          },
+          "fit_predict_seconds": 4.3
+        }
+      }
+    },
+    {
+      "fold": 7,
+      "test_years": [
+        2007
+      ],
+      "fit_cutoff": "2007-01-31",
+      "train_label_known_by": "2005-01-31",
+      "n_train": 1040272,
+      "n_val": 113271,
+      "n_test": 55239,
+      "train_ids_sha256": "f65c01c212758c5f",
+      "val_ids_sha256": "8570049308342718",
+      "test_ids_sha256": "f4f1016d7d4ce396",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": -0.01925561334803534,
+              "val_mse": 0.017729577628655707,
+              "seconds": 1.582
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": -0.019440972487547267,
+              "val_mse": 0.01772661119320411,
+              "seconds": 2.797
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.03532515677871598,
+              "val_mse": 0.017645198123384286,
+              "seconds": 2.403
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.05064579832548202,
+              "val_mse": 0.017637817837367644,
+              "seconds": 1.633
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.731512835,
+              1.7698754360000446
+            ]
+          },
+          "fit_predict_seconds": 8.44
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 3,
+              "val_rank_ic": 0.010949133911984467,
+              "val_mse": 0.01765761108946283,
+              "seconds": 1.34
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 1,
+              "val_rank_ic": -0.005247344935003498,
+              "val_mse": 0.017656821403679485,
+              "seconds": 2.17
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 3,
+            "target_clip": [
+              -0.731512835,
+              1.7698754360000446
+            ]
+          },
+          "fit_predict_seconds": 3.53
+        }
+      }
+    },
+    {
+      "fold": 8,
+      "test_years": [
+        2008
+      ],
+      "fit_cutoff": "2008-01-31",
+      "train_label_known_by": "2006-01-31",
+      "n_train": 1097349,
+      "n_val": 111433,
+      "n_test": 53492,
+      "train_ids_sha256": "be7fa231313e49a8",
+      "val_ids_sha256": "043bfa5099c8735f",
+      "test_ids_sha256": "8c28c7adaf916d7e",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": -0.03607682757025041,
+              "val_mse": 0.017918560354958694,
+              "seconds": 1.491
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": -0.03636183954577255,
+              "val_mse": 0.0179148870505291,
+              "seconds": 1.404
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.05023075996917397,
+              "val_mse": 0.017855576767727067,
+              "seconds": 1.356
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.06210566263951975,
+              "val_mse": 0.01790569123004811,
+              "seconds": 1.364
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.727273,
+              1.75
+            ]
+          },
+          "fit_predict_seconds": 5.64
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 5,
+              "val_rank_ic": 0.031393271891025414,
+              "val_mse": 0.01789271350374202,
+              "seconds": 0.98
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 1,
+              "val_rank_ic": 0.0326228782741946,
+              "val_mse": 0.017914288915820448,
+              "seconds": 1.58
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 1,
+            "target_clip": [
+              -0.727273,
+              1.75
+            ]
+          },
+          "fit_predict_seconds": 2.58
+        }
+      }
+    },
+    {
+      "fold": 9,
+      "test_years": [
+        2009
+      ],
+      "fit_cutoff": "2009-01-30",
+      "train_label_known_by": "2007-01-30",
+      "n_train": 1148884,
+      "n_val": 113390,
+      "n_test": 49891,
+      "train_ids_sha256": "7a0b4cc2ffe166f8",
+      "val_ids_sha256": "5d112548cf7fdc88",
+      "test_ids_sha256": "c3d8e7d5cbcce79a",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": -0.04084330932914702,
+              "val_mse": 0.03214561660597965,
+              "seconds": 1.998
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": -0.04087381427219273,
+              "val_mse": 0.03214659886042699,
+              "seconds": 1.576
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.06131974189429335,
+              "val_mse": 0.032433820166092496,
+              "seconds": 1.507
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.07689101071721213,
+              "val_mse": 0.032881890248312666,
+              "seconds": 1.456
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.724138,
+              1.721684934000437
+            ]
+          },
+          "fit_predict_seconds": 6.56
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 7,
+              "val_rank_ic": 0.024707678885484707,
+              "val_mse": 0.03285551199168949,
+              "seconds": 1.03
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 1,
+              "val_rank_ic": 0.04119100876102716,
+              "val_mse": 0.03291352691951013,
+              "seconds": 1.71
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 1,
+            "target_clip": [
+              -0.724138,
+              1.721684934000437
+            ]
+          },
+          "fit_predict_seconds": 2.76
+        }
+      }
+    },
+    {
+      "fold": 10,
+      "test_years": [
+        2010
+      ],
+      "fit_cutoff": "2010-01-29",
+      "train_label_known_by": "2008-01-29",
+      "n_train": 1204223,
+      "n_val": 107942,
+      "n_test": 47905,
+      "train_ids_sha256": "a58186ad0fa75648",
+      "val_ids_sha256": "9d6b56196b57cfd6",
+      "test_ids_sha256": "734df66e9173c05c",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": 0.0006287583026954196,
+              "val_mse": 0.058170285473113946,
+              "seconds": 1.669
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": 0.0007018122038829344,
+              "val_mse": 0.058180186610292776,
+              "seconds": 1.557
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.01625294163950276,
+              "val_mse": 0.05866005768220457,
+              "seconds": 1.65
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.034566308123080064,
+              "val_mse": 0.059388788574782615,
+              "seconds": 1.638
+            }
+          ],
+          "chosen": {
+            "alpha": 10000.0,
+            "target_clip": [
+              -0.7202509180000001,
+              1.692308
+            ]
+          },
+          "fit_predict_seconds": 6.53
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 25,
+              "val_rank_ic": 0.03980355996959252,
+              "val_mse": 0.059121421749267204,
+              "seconds": 1.41
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 1,
+              "val_rank_ic": 0.02719319464041301,
+              "val_mse": 0.059425257205813174,
+              "seconds": 1.9
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 25,
+            "target_clip": [
+              -0.7202509180000001,
+              1.692308
+            ]
+          },
+          "fit_predict_seconds": 3.33
+        }
+      }
+    },
+    {
+      "fold": 11,
+      "test_years": [
+        2011
+      ],
+      "fit_cutoff": "2011-01-31",
+      "train_label_known_by": "2009-01-31",
+      "n_train": 1262274,
+      "n_val": 97796,
+      "n_test": 46085,
+      "train_ids_sha256": "08e2405337ef88d0",
+      "val_ids_sha256": "1bbe20d248adfcf3",
+      "test_ids_sha256": "469b12196b6bae6c",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": 0.005272531553455667,
+              "val_mse": 0.05030698725321515,
+              "seconds": 1.856
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": 0.004974338409831501,
+              "val_mse": 0.05031063993020579,
+              "seconds": 1.711
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.016415837226544983,
+              "val_mse": 0.050348641503787185,
+              "seconds": 1.632
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.04036759468929369,
+              "val_mse": 0.050586593615688576,
+              "seconds": 1.688
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.729138881,
+              1.681188199999839
+            ]
+          },
+          "fit_predict_seconds": 6.91
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 13,
+              "val_rank_ic": 0.007610083773218743,
+              "val_mse": 0.05050126275776492,
+              "seconds": 1.21
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 1,
+              "val_rank_ic": -0.017606734526885055,
+              "val_mse": 0.05060477608542941,
+              "seconds": 1.88
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 13,
+            "target_clip": [
+              -0.729138881,
+              1.681188199999839
+            ]
+          },
+          "fit_predict_seconds": 3.12
+        }
+      }
+    },
+    {
+      "fold": 12,
+      "test_years": [
+        2012
+      ],
+      "fit_cutoff": "2012-01-31",
+      "train_label_known_by": "2010-01-31",
+      "n_train": 1312165,
+      "n_val": 93990,
+      "n_test": 44499,
+      "train_ids_sha256": "b3b52aeb1aa9dd57",
+      "val_ids_sha256": "e6f9aa98b2551e4d",
+      "test_ids_sha256": "ea72b016812bd45d",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": -0.025330564472298783,
+              "val_mse": 0.025138246526197897,
+              "seconds": 2.096
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": -0.02545616124396059,
+              "val_mse": 0.02513469136470609,
+              "seconds": 1.786
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.04743318772947123,
+              "val_mse": 0.02495927684518837,
+              "seconds": 1.908
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.0691615616342027,
+              "val_mse": 0.024881463637767092,
+              "seconds": 1.664
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.73213708,
+              1.7210620879999832
+            ]
+          },
+          "fit_predict_seconds": 7.47
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 1,
+              "val_rank_ic": -0.047018894526342864,
+              "val_mse": 0.02498811747409114,
+              "seconds": 1.15
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 1,
+              "val_rank_ic": -0.03509155334680263,
+              "val_mse": 0.025005909551481895,
+              "seconds": 3.18
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 1,
+            "target_clip": [
+              -0.73213708,
+              1.7210620879999832
+            ]
+          },
+          "fit_predict_seconds": 4.35
+        }
+      }
+    },
+    {
+      "fold": 13,
+      "test_years": [
+        2013
+      ],
+      "fit_cutoff": "2013-01-31",
+      "train_label_known_by": "2011-01-31",
+      "n_train": 1360070,
+      "n_val": 90584,
+      "n_test": 43436,
+      "train_ids_sha256": "2800984d97663df7",
+      "val_ids_sha256": "249751a468f0c5ad",
+      "test_ids_sha256": "9678c5e717be1221",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": -0.02540980897975505,
+              "val_mse": 0.022534392690734234,
+              "seconds": 1.771
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": -0.02546533909535494,
+              "val_mse": 0.022532807197662492,
+              "seconds": 1.704
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.04311819953636589,
+              "val_mse": 0.022450434474741026,
+              "seconds": 1.712
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.06382244535972165,
+              "val_mse": 0.02245321551070064,
+              "seconds": 1.691
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.7288101994520301,
+              1.70141325800015
+            ]
+          },
+          "fit_predict_seconds": 6.9
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 1,
+              "val_rank_ic": -0.037160708086843124,
+              "val_mse": 0.022568022228519634,
+              "seconds": 1.14
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 1,
+              "val_rank_ic": -0.03051825269557658,
+              "val_mse": 0.022606642338872406,
+              "seconds": 1.94
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 1,
+            "target_clip": [
+              -0.7288101994520301,
+              1.70141325800015
+            ]
+          },
+          "fit_predict_seconds": 3.11
+        }
+      }
+    },
+    {
+      "fold": 14,
+      "test_years": [
+        2014
+      ],
+      "fit_cutoff": "2014-01-31",
+      "train_label_known_by": "2012-01-31",
+      "n_train": 1406155,
+      "n_val": 87935,
+      "n_test": 44393,
+      "train_ids_sha256": "b7650b007a80c3ba",
+      "val_ids_sha256": "4c5fab2b6fe0d7b9",
+      "test_ids_sha256": "81ed609b0b9b7a8a",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": -0.007289719085753246,
+              "val_mse": 0.02016275544191839,
+              "seconds": 1.807
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": -0.007599189401620763,
+              "val_mse": 0.020161644364090507,
+              "seconds": 1.778
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.021510585915143602,
+              "val_mse": 0.020083891461142225,
+              "seconds": 1.783
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.04072781352833054,
+              "val_mse": 0.020034625839176194,
+              "seconds": 1.759
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.727762754,
+              1.684211
+            ]
+          },
+          "fit_predict_seconds": 7.15
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 1,
+              "val_rank_ic": -0.028262481017532898,
+              "val_mse": 0.020032991455553154,
+              "seconds": 1.2
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 4,
+              "val_rank_ic": 0.014558139439177628,
+              "val_mse": 0.020037411963755317,
+              "seconds": 2.07
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 4,
+            "target_clip": [
+              -0.727762754,
+              1.684211
+            ]
+          },
+          "fit_predict_seconds": 3.29
+        }
+      }
+    },
+    {
+      "fold": 15,
+      "test_years": [
+        2015
+      ],
+      "fit_cutoff": "2015-01-30",
+      "train_label_known_by": "2013-01-30",
+      "n_train": 1447011,
+      "n_val": 91472,
+      "n_test": 44948,
+      "train_ids_sha256": "d173cb74e64fa48c",
+      "val_ids_sha256": "3c93d43f1cbcdd83",
+      "test_ids_sha256": "8cfa38ccf0eee82e",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": -0.03045655289208685,
+              "val_mse": 0.019421354653371865,
+              "seconds": 1.864
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": -0.030921252516257876,
+              "val_mse": 0.019417909284324884,
+              "seconds": 1.882
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.041885273466674554,
+              "val_mse": 0.019252502508392378,
+              "seconds": 2.025
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.05494325384012665,
+              "val_mse": 0.019111872159756894,
+              "seconds": 1.834
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.727273,
+              1.666667
+            ]
+          },
+          "fit_predict_seconds": 7.63
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 1,
+              "val_rank_ic": -0.0019269392142237615,
+              "val_mse": 0.019118076905369416,
+              "seconds": 1.23
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 1,
+              "val_rank_ic": -0.0040871324202666134,
+              "val_mse": 0.019128652901605547,
+              "seconds": 2.01
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 1,
+            "target_clip": [
+              -0.727273,
+              1.666667
+            ]
+          },
+          "fit_predict_seconds": 3.26
+        }
+      }
+    },
+    {
+      "fold": 16,
+      "test_years": [
+        2016
+      ],
+      "fit_cutoff": "2016-01-29",
+      "train_label_known_by": "2014-01-29",
+      "n_train": 1490459,
+      "n_val": 92972,
+      "n_test": 43716,
+      "train_ids_sha256": "5e397c84b96426af",
+      "val_ids_sha256": "901fabba2a52e904",
+      "test_ids_sha256": "9e0931137165a576",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": -0.03745699882167425,
+              "val_mse": 0.026478474628335257,
+              "seconds": 1.883
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": -0.03821008275913132,
+              "val_mse": 0.026478043279478083,
+              "seconds": 1.886
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.04344496522951201,
+              "val_mse": 0.02637714515676851,
+              "seconds": 1.834
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.053938187420741454,
+              "val_mse": 0.026375554174375895,
+              "seconds": 1.863
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.72514905,
+              1.666667
+            ]
+          },
+          "fit_predict_seconds": 7.49
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 15,
+              "val_rank_ic": 0.05608145049439454,
+              "val_mse": 0.026341694911427075,
+              "seconds": 1.4
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 1,
+              "val_rank_ic": 0.012968066953921829,
+              "val_mse": 0.02638035518151712,
+              "seconds": 2.08
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 15,
+            "target_clip": [
+              -0.72514905,
+              1.666667
+            ]
+          },
+          "fit_predict_seconds": 3.5
+        }
+      }
+    },
+    {
+      "fold": 17,
+      "test_years": [
+        2017
+      ],
+      "fit_cutoff": "2017-01-31",
+      "train_label_known_by": "2015-01-31",
+      "n_train": 1538483,
+      "n_val": 88664,
+      "n_test": 42879,
+      "train_ids_sha256": "67210fca3e34a0d9",
+      "val_ids_sha256": "001ec9bdac816a67",
+      "test_ids_sha256": "46ef8aa2c8fbd16a",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": -0.02089094191740871,
+              "val_mse": 0.031555345262254744,
+              "seconds": 1.954
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": -0.02145118562067373,
+              "val_mse": 0.031554609005479135,
+              "seconds": 1.958
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.026267497765552,
+              "val_mse": 0.03148818675143843,
+              "seconds": 1.947
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.043904754810875336,
+              "val_mse": 0.03150880029045473,
+              "seconds": 1.951
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.724138,
+              1.666667
+            ]
+          },
+          "fit_predict_seconds": 7.83
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 17,
+              "val_rank_ic": 0.0504359958435506,
+              "val_mse": 0.03143839766425214,
+              "seconds": 1.5
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 14,
+              "val_rank_ic": 0.04695039576382659,
+              "val_mse": 0.03147754437689538,
+              "seconds": 2.42
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 17,
+            "target_clip": [
+              -0.724138,
+              1.666667
+            ]
+          },
+          "fit_predict_seconds": 3.95
+        }
+      }
+    },
+    {
+      "fold": 18,
+      "test_years": [
+        2018
+      ],
+      "fit_cutoff": "2018-01-31",
+      "train_label_known_by": "2016-01-31",
+      "n_train": 1583431,
+      "n_val": 86595,
+      "n_test": 42872,
+      "train_ids_sha256": "4de81dcbfc4f0d63",
+      "val_ids_sha256": "6d38dacec5c751a0",
+      "test_ids_sha256": "cd2df4e11d545da4",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": -0.029400811444968127,
+              "val_mse": 0.02691763952278706,
+              "seconds": 2.072
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": -0.030325158028282534,
+              "val_mse": 0.026915721447256014,
+              "seconds": 2.024
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.0402542578647645,
+              "val_mse": 0.026786299114855396,
+              "seconds": 1.989
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.06229224069182982,
+              "val_mse": 0.026668856251142656,
+              "seconds": 2.008
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.72400212,
+              1.6479205300000344
+            ]
+          },
+          "fit_predict_seconds": 8.11
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 1,
+              "val_rank_ic": -0.023564878008644836,
+              "val_mse": 0.026675003932439798,
+              "seconds": 1.3
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 1,
+              "val_rank_ic": -0.007162806669806634,
+              "val_mse": 0.026689289905062002,
+              "seconds": 2.12
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 1,
+            "target_clip": [
+              -0.72400212,
+              1.6479205300000344
+            ]
+          },
+          "fit_predict_seconds": 3.43
+        }
+      }
+    },
+    {
+      "fold": 19,
+      "test_years": [
+        2019
+      ],
+      "fit_cutoff": "2019-01-31",
+      "train_label_known_by": "2017-01-31",
+      "n_train": 1627147,
+      "n_val": 85751,
+      "n_test": 42890,
+      "train_ids_sha256": "9f7ad0361769e991",
+      "val_ids_sha256": "9bc6f858271ec15c",
+      "test_ids_sha256": "30f4255024adb1f4",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": -0.039289411894365696,
+              "val_mse": 0.03192489925817738,
+              "seconds": 2.068
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": -0.041830469910151796,
+              "val_mse": 0.03193237698547964,
+              "seconds": 2.067
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.05072483197497479,
+              "val_mse": 0.0317225472489086,
+              "seconds": 2.045
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.06886382159906292,
+              "val_mse": 0.0315243836895551,
+              "seconds": 2.039
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.723744,
+              1.642589674000092
+            ]
+          },
+          "fit_predict_seconds": 8.24
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 20,
+              "val_rank_ic": 0.03979740825614524,
+              "val_mse": 0.031431349103138655,
+              "seconds": 1.59
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 4,
+              "val_rank_ic": 0.02954426219703408,
+              "val_mse": 0.03151144709686839,
+              "seconds": 2.26
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 20,
+            "target_clip": [
+              -0.723744,
+              1.642589674000092
+            ]
+          },
+          "fit_predict_seconds": 3.87
+        }
+      }
+    },
+    {
+      "fold": 20,
+      "test_years": [
+        2020
+      ],
+      "fit_cutoff": "2020-01-31",
+      "train_label_known_by": "2018-01-31",
+      "n_train": 1670026,
+      "n_val": 85762,
+      "n_test": 42988,
+      "train_ids_sha256": "a039703d76d1e2e1",
+      "val_ids_sha256": "ab9c606caad6f582",
+      "test_ids_sha256": "69086927ec0a102d",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": -0.0364275188992706,
+              "val_mse": 0.037107387561986845,
+              "seconds": 2.175
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": -0.03991599807829684,
+              "val_mse": 0.03712059064465057,
+              "seconds": 2.148
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.04902318080867871,
+              "val_mse": 0.036896262308952654,
+              "seconds": 2.124
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.07170899186166478,
+              "val_mse": 0.03670388359328192,
+              "seconds": 2.14
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.722222,
+              1.6363564000000284
+            ]
+          },
+          "fit_predict_seconds": 8.61
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 12,
+              "val_rank_ic": 0.0398447637872047,
+              "val_mse": 0.03661956300600572,
+              "seconds": 1.51
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 4,
+              "val_rank_ic": 0.03724802914949487,
+              "val_mse": 0.03666617893865451,
+              "seconds": 2.3
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 12,
+            "target_clip": [
+              -0.722222,
+              1.6363564000000284
+            ]
+          },
+          "fit_predict_seconds": 3.84
+        }
+      }
+    },
+    {
+      "fold": 21,
+      "test_years": [
+        2021
+      ],
+      "fit_cutoff": "2021-01-29",
+      "train_label_known_by": "2019-01-29",
+      "n_train": 1709318,
+      "n_val": 89458,
+      "n_test": 44084,
+      "train_ids_sha256": "6682ebee3edb9730",
+      "val_ids_sha256": "60e968327a267d00",
+      "test_ids_sha256": "c92369bf844fbef8",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": -0.0010222683729439563,
+              "val_mse": 0.07116113113786389,
+              "seconds": 2.178
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": -0.004260760665421506,
+              "val_mse": 0.0711452793384148,
+              "seconds": 2.17
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.015312938899548425,
+              "val_mse": 0.07093587252377051,
+              "seconds": 2.165
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.03868048556852319,
+              "val_mse": 0.07079179510692311,
+              "seconds": 2.148
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.722757735,
+              1.6303405339999884
+            ]
+          },
+          "fit_predict_seconds": 8.68
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 2,
+              "val_rank_ic": 0.0017190228390517937,
+              "val_mse": 0.07080714273041774,
+              "seconds": 1.41
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 1,
+              "val_rank_ic": -0.013412202732868328,
+              "val_mse": 0.0708778952290369,
+              "seconds": 2.25
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 2,
+            "target_clip": [
+              -0.722757735,
+              1.6303405339999884
+            ]
+          },
+          "fit_predict_seconds": 3.69
+        }
+      }
+    }
+  ],
+  "n_predictions": 4534172,
+  "total_seconds": 229.1,
+  "environment": {
+    "python": "3.11.8",
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "packages": {
+      "pandas": "2.2.3",
+      "numpy": "2.4.6",
+      "pyarrow": "25.0.1",
+      "scipy": "1.17.1",
+      "scikit-learn": "1.9.0",
+      "lightgbm": "4.7.0",
+      "xgboost": "3.2.0",
+      "catboost": "1.2.10",
+      "joblib": "1.6.0",
+      "plotly": "7.0.0",
+      "streamlit": "1.64.0"
+    },
+    "n_jobs": 5
+  }
+}

@@ -21,6 +21,7 @@ from p3_modellab import config, explore, plots  # noqa: E402
 from p3_modellab.tasks import volatility  # noqa: E402
 
 NICE = plots.NICE
+TASK_NAMES = {"volatility": "Volatility", "returns": "Returns", "delisting": "Adverse delisting"}
 
 MODEL_CARDS = {
     "persistence": {"one": "Next month will look like the last month.",
@@ -81,6 +82,41 @@ def runs() -> list[dict]:
     return out
 
 
+def report_catalog() -> list[dict]:
+    """Find compact reports anywhere under results, including downloaded cloud runs."""
+    out, seen = [], set()
+    roots = [root for root in (config.RESULTS_DIR, config.DASHBOARD_DATA_DIR) if root.exists()]
+    for manifest_path in (path for root in roots for path in root.rglob("manifest.json")):
+        run_dir = manifest_path.parent
+        report_dir = run_dir / "report"
+        if not (report_dir / "model_summary.json").exists():
+            continue
+        try:
+            manifest = _read(manifest_path)
+        except (OSError, json.JSONDecodeError):
+            continue
+        task = manifest.get("task")
+        if task not in TASK_NAMES or "run_id" not in manifest or manifest["run_id"] in seen:
+            continue
+        years = manifest.get("test_years") or []
+        out.append({
+            "path": run_dir, "report": report_dir, "run_id": manifest["run_id"], "task": task,
+            "type": manifest.get("run_type", "unknown"), "quick": bool(manifest.get("quick")),
+            "evidence": bool(manifest.get("evidence")), "created": manifest.get("created_utc", ""),
+            "test_years": years, "forecasts": int(manifest.get("n_predictions", 0)),
+            "models": [model.get("name") for model in manifest.get("spec", {}).get("models", [])],
+        })
+        seen.add(manifest["run_id"])
+    return sorted(out, key=lambda row: (row["evidence"], len(row["models"]), row["created"]), reverse=True)
+
+
+def catalog_label(run: dict) -> str:
+    years = run["test_years"]
+    span = f"{years[0]}-{years[-1]}" if years else "unknown years"
+    status = "quick check" if run["quick"] else run["type"]
+    return f"{TASK_NAMES[run['task']]} · {len(run['models'])} models · {span} · {status}"
+
+
 def sweeps() -> list[dict]:
     root = config.RESULTS_DIR / "sweeps"
     out = []
@@ -123,7 +159,9 @@ def badge(r: dict) -> None:
     if not r["evidence"]:
         st.error("Quick run: a functional check on 20% of firms. Not evidence.", icon=":material/warning:")
     elif r["type"] == "exploratory":
-        st.caption(f"Exploratory results, test years {r['test_years']}. The sealed years 2022 to 2024 are kept for one final check.")
+        years = r["test_years"]
+        span = f"{years[0]} to {years[-1]}" if isinstance(years, list) and years else years
+        st.caption(f"Exploratory results, test years {span}. The sealed years 2022 to 2024 are kept for one final check.")
 
 
 @st.cache_data(show_spinner=False)

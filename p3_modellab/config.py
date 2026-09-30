@@ -9,6 +9,7 @@ PROJECT_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = Path(os.environ.get("P3_WRDS_CACHE", Path.home() / ".wrdslab" / "cache" / "wrds")).expanduser()
 
 RESULTS_DIR = Path(os.environ.get("P3_RESULTS", PROJECT_DIR / "results")).expanduser()
+DASHBOARD_DATA_DIR = Path(os.environ.get("P3_DASHBOARD_DATA", PROJECT_DIR / "dashboard_data")).expanduser()
 AUDIT_DIR = RESULTS_DIR / "audit"
 PANELS_DIR = RESULTS_DIR / "panels"
 RUNS_DIR = RESULTS_DIR / "runs"

@@ -49,4 +49,4 @@ st.markdown(f"""
 st.write("")
 _, mid, _ = st.columns([1, 1, 1])
 if mid.button("See results  →", type="primary", width="stretch"):
-    st.switch_page("views/results.py")
+    st.switch_page("views/comparison.py")
