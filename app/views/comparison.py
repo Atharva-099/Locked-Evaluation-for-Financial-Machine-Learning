@@ -147,14 +147,17 @@ def _headline(summary: pd.DataFrame, task: str) -> list[tuple]:
             ("Models evaluated", str(len(summary)), "same stocks and months")]
 
 
-st.title("Saved model comparison")
-st.caption("This page reads compact saved metrics. Changing a selection does not train a model or scan the full forecast file.")
+st.title("Equity Model Benchmark")
+st.caption(
+    "Compare saved exploratory and locked results across volatility, returns, and delisting risk. "
+    "Changing a selection does not train a model."
+)
 catalog = report_catalog()
 if not catalog:
     st.info("No saved reports were found. Build a report after a model run, then reopen this page.")
     st.stop()
 
-choice = st.selectbox("Saved study", [run["run_id"] for run in catalog],
+choice = st.selectbox("Research study", [run["run_id"] for run in catalog],
                       format_func=lambda run_id: catalog_label(next(run for run in catalog if run["run_id"] == run_id)))
 run = next(run for run in catalog if run["run_id"] == choice)
 badge(run)
@@ -164,6 +167,7 @@ chart(_bar(summary, run["task"]), key="saved_model_summary")
 
 st.subheader("Compare all saved models")
 models = summary["model"].tolist()
+monthly_path, metric, direction, unit = _all_model_inputs(run["report"], run["task"])
 selected_models = st.multiselect(
     "Models in comparison",
     models,
@@ -172,8 +176,7 @@ selected_models = st.multiselect(
 )
 if len(selected_models) < 2:
     st.info("Select at least two models for the pairwise matrix.")
-else:
-    monthly_path, metric, direction, unit = _all_model_inputs(run["report"], run["task"])
+elif monthly_path.exists():
     pairwise, matrix = _all_pairwise(
         str(monthly_path), monthly_path.stat().st_mtime, metric, direction, tuple(selected_models)
     )
@@ -193,24 +196,48 @@ else:
                 "95% high": st.column_config.NumberColumn(format="%+.5f"),
             },
         )
-
-st.subheader("Compare any two saved models")
-c1, c2 = st.columns(2)
-first = c1.selectbox("First model", models, index=0, format_func=lambda model: DISPLAY.get(model, model))
-second_options = [model for model in models if model != first]
-second = c2.selectbox("Second model", second_options, index=0, format_func=lambda model: DISPLAY.get(model, model))
-estimate, lo, hi, n_months, direction = _paired_months(run["report"], run["task"], first, second)
-favours_first = estimate < 0 if direction == "lower" else estimate > 0
-clear = lo > 0 or hi < 0
-if clear:
-    winner = first if favours_first else second
-    verdict = f"{DISPLAY.get(winner, winner)} has the better saved score"
 else:
-    verdict = "No clear difference in the saved test months"
-unit = {"volatility": "QLIKE", "returns": "rank correlation", "delisting": "log loss"}[run["task"]]
-stats([("Head-to-head", verdict, f"{n_months} paired months"),
-       (f"First minus second {unit}", f"{estimate:+.4f}", f"95% interval {lo:+.4f} to {hi:+.4f}")])
-st.caption("The monthly scores were computed during reporting. This selection only takes their paired difference and confidence interval.")
+    saved_path = run["report"] / "pairwise_comparisons.json"
+    saved = _load_frame(saved_path if saved_path.exists() else run["report"] / "comparisons.json")
+    saved = saved[saved["model"].isin(selected_models) & saved["baseline"].isin(selected_models)].copy()
+    saved["Model A"] = saved["model"].map(lambda model: DISPLAY.get(model, model))
+    saved["Model B"] = saved["baseline"].map(lambda model: DISPLAY.get(model, model))
+    a_better = saved["estimate"] < 0 if direction == "lower" else saved["estimate"] > 0
+    saved["Result"] = np.where(
+        (saved["ci_lo"] > 0) | (saved["ci_hi"] < 0),
+        np.where(a_better, saved["Model A"] + " better", saved["Model B"] + " better"),
+        "No clear difference",
+    )
+    st.dataframe(
+        saved[["Model A", "Model B", "estimate", "ci_lo", "ci_hi", "n_months", "Result"]].rename(columns={
+            "estimate": "A minus B", "ci_lo": "95% low", "ci_hi": "95% high", "n_months": "Paired months",
+        }),
+        hide_index=True,
+        width="stretch",
+    )
+    st.caption(
+        "This sensitivity report stores the completed pairwise comparisons instead of month-level aggregates. "
+        f"Differences use saved {unit}; {'negative' if direction == 'lower' else 'positive'} values favor Model A. "
+        "No model fitting occurs here."
+    )
+
+if monthly_path.exists():
+    st.subheader("Compare any two saved models")
+    c1, c2 = st.columns(2)
+    first = c1.selectbox("First model", models, index=0, format_func=lambda model: DISPLAY.get(model, model))
+    second_options = [model for model in models if model != first]
+    second = c2.selectbox("Second model", second_options, index=0, format_func=lambda model: DISPLAY.get(model, model))
+    estimate, lo, hi, n_months, direction = _paired_months(run["report"], run["task"], first, second)
+    favours_first = estimate < 0 if direction == "lower" else estimate > 0
+    clear = lo > 0 or hi < 0
+    if clear:
+        winner = first if favours_first else second
+        verdict = f"{DISPLAY.get(winner, winner)} has the better saved score"
+    else:
+        verdict = "No clear difference in the saved test months"
+    stats([("Head-to-head", verdict, f"{n_months} paired months"),
+           (f"First minus second {unit}", f"{estimate:+.4f}", f"95% interval {lo:+.4f} to {hi:+.4f}")])
+    st.caption("The monthly scores were computed during reporting. This selection only takes their paired difference and confidence interval.")
 
 if run["task"] == "returns" and "mean_turnover" in summary:
     st.subheader("Turnover and transaction-cost comparison")

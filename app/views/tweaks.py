@@ -3,8 +3,8 @@ import streamlit as st
 from _common import NICE, chart, confirm, start_job, stats, sweeps
 from p3_modellab import sweep_plots
 
-st.title("Tweaks (sweeps)")
-st.caption("Same data (forecasts 2015 to 2019, a fixed sample of firms), one thing changed at a time. Choices use tuning years only.")
+st.title("Robustness Lab")
+st.caption("Sensitivity experiments vary one design choice at a time on fixed 2015–2019 data. Model selection remains confined to tuning periods.")
 
 WHAT = {
     "settings": "LightGBM tree size x learning speed",
@@ -22,6 +22,12 @@ else:
     man, t = data["manifest"], data["trials"]
     body = t[t["role"].isna()]
     refs = t[t["role"] == "reference"].set_index("model")["eval_qlike"]
+    swept_models = sorted(body["model"].dropna().unique())
+    st.caption(
+        "Models saved in this sweep: "
+        + ", ".join(NICE.get(model, model) for model in swept_models)
+        + ". Sweeps test sensitivity for selected representative models; use Model comparison for the full saved-model leaderboard."
+    )
     if man.get("size") == "demo":
         st.warning("Demo size: only checks the calculations run. Too small to read results from.", icon=":material/science:")
 

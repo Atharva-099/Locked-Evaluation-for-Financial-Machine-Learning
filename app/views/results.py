@@ -4,7 +4,8 @@ import streamlit as st
 from _common import NICE, badge, chart, explore_table, names, need_run, report_for, stats
 from p3_modellab import explore, plots
 
-st.title("Results")
+st.title("Volatility Model Analysis")
+st.caption("Detailed diagnostics for the complete eight-model volatility studies. Use Model Benchmark for cross-task comparisons.")
 r = need_run()
 badge(r)
 d = report_for(r)

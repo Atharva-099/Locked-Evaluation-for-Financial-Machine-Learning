@@ -1,0 +1,450 @@
+{
+  "run_id": "20260930-194006-68c0-returns-locked",
+  "created_utc": "2026-09-30T19:42:30+00:00",
+  "run_type": "locked",
+  "quick": false,
+  "evidence": true,
+  "task": "returns",
+  "test_years": [
+    2022,
+    2023,
+    2024
+  ],
+  "reserved_start": "2022-01-01",
+  "spec": {
+    "features": [
+      "ret_1m",
+      "ret_3m",
+      "ret_6m",
+      "momentum_12_2",
+      "volatility_12m",
+      "log_mcap",
+      "log_price",
+      "log_turnover",
+      "log_dollar_volume",
+      "market_ret_1m",
+      "is_nyse",
+      "is_amex",
+      "is_nasdaq"
+    ],
+    "firm_sample_percent": 100,
+    "models": [
+      {
+        "kind": "baseline",
+        "name": "zero"
+      },
+      {
+        "kind": "baseline",
+        "name": "reversal"
+      },
+      {
+        "alphas": [
+          100.0,
+          10000.0,
+          1000000.0,
+          100000000.0
+        ],
+        "features": [
+          "ret_1m",
+          "ret_3m",
+          "ret_6m",
+          "momentum_12_2",
+          "volatility_12m",
+          "log_mcap",
+          "log_price",
+          "log_turnover",
+          "log_dollar_volume",
+          "market_ret_1m",
+          "is_nyse",
+          "is_amex",
+          "is_nasdaq"
+        ],
+        "kind": "model",
+        "name": "ridge"
+      },
+      {
+        "features": [
+          "ret_1m",
+          "ret_3m",
+          "ret_6m",
+          "momentum_12_2",
+          "volatility_12m",
+          "log_mcap",
+          "log_price",
+          "log_turnover",
+          "log_dollar_volume",
+          "market_ret_1m",
+          "is_nyse",
+          "is_amex",
+          "is_nasdaq"
+        ],
+        "kind": "model",
+        "learning_rate": 0.05,
+        "leaves": [
+          15,
+          63
+        ],
+        "max_rounds": 1200,
+        "name": "lightgbm",
+        "patience": 75,
+        "seed": 0
+      }
+    ],
+    "panel_config": {
+      "first_prediction_month": "1991-01"
+    },
+    "refit_every": 1,
+    "seed": 0,
+    "selection_metric": "mean monthly Spearman rank IC on validation rows; MSE breaks ties",
+    "target_training_clip": "0.1 and 99.9 percentiles learned from each training fold",
+    "task": "returns",
+    "validation_months": 24
+  },
+  "spec_hash": "19f730205243bd76",
+  "lock": {
+    "spec_hash": "19f730205243bd76",
+    "lock_created_utc": "2026-09-30T19:22:44+00:00",
+    "lock_code_hash": "9f0036f3f22b9954",
+    "code_changed_since_lock": false,
+    "previous_locked_runs": []
+  },
+  "code_hash": "9f0036f3f22b9954",
+  "code_changed_during_run": false,
+  "audit": {
+    "created_utc": "2026-09-25T20:30:30+00:00",
+    "coverage": {
+      "msf_last_month": "2024-12",
+      "daily_last_date": "2024-12-31",
+      "delist_last_date": "2024-12-31",
+      "last_complete_month": "2024-12",
+      "empty_daily_files": [
+        2025
+      ]
+    },
+    "cutoffs": {
+      "one_month_ahead_last_prediction_month": "2024-11",
+      "twelve_month_ahead_last_prediction_month": "2023-12"
+    },
+    "data_sha256": {
+      "msf": null,
+      "msenames": null,
+      "msedelist": null,
+      "ccm": null,
+      "fundq": null
+    }
+  },
+  "panel": {
+    "source": "supplied by caller",
+    "rows": 1992414
+  },
+  "feature_descriptions": {
+    "ret_1m": "stock return in the prediction month",
+    "ret_3m": "compounded stock return over prediction month and the prior 2 months",
+    "ret_6m": "compounded stock return over prediction month and the prior 5 months",
+    "momentum_12_2": "compounded return from months t-12 through t-2",
+    "volatility_12m": "standard deviation of monthly returns from t-11 through t, requiring at least 6 observations",
+    "log_mcap": "log of absolute month-end price times shares outstanding",
+    "log_price": "log of absolute month-end price",
+    "log_turnover": "log of monthly volume divided by shares outstanding",
+    "log_dollar_volume": "log of absolute price times monthly volume",
+    "market_ret_1m": "equal-weighted common-stock return in the prediction month",
+    "is_nyse": "one when the security is listed on NYSE",
+    "is_amex": "one when the security is listed on AMEX",
+    "is_nasdaq": "one when the security is listed on Nasdaq"
+  },
+  "folds": [
+    {
+      "fold": 0,
+      "test_years": [
+        2022
+      ],
+      "fit_cutoff": "2022-01-31",
+      "train_label_known_by": "2020-01-31",
+      "n_train": 1755788,
+      "n_val": 91383,
+      "n_test": 52583,
+      "train_ids_sha256": "4e50e7f6549a8a78",
+      "val_ids_sha256": "ba3917733f818b5d",
+      "test_ids_sha256": "3d52ccb95116f8a2",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": 0.014047507717020872,
+              "val_mse": 0.06516989818737723,
+              "seconds": 4.857
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": 0.009063166263681565,
+              "val_mse": 0.06516507411107221,
+              "seconds": 4.784
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": 0.011621859889348572,
+              "val_mse": 0.06521353683898061,
+              "seconds": 4.782
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.004563919877091841,
+              "val_mse": 0.06542935824161422,
+              "seconds": 4.744
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.724160152,
+              1.6329998209999954
+            ]
+          },
+          "fit_predict_seconds": 19.23
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 1,
+              "val_rank_ic": 0.05180246402833516,
+              "val_mse": 0.06543760754203841,
+              "seconds": 7.3
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 1,
+              "val_rank_ic": 0.023641926202498855,
+              "val_mse": 0.06547406057235146,
+              "seconds": 9.77
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 1,
+            "target_clip": [
+              -0.724160152,
+              1.6329998209999954
+            ]
+          },
+          "fit_predict_seconds": 17.16
+        }
+      }
+    },
+    {
+      "fold": 1,
+      "test_years": [
+        2023
+      ],
+      "fit_cutoff": "2023-01-31",
+      "train_label_known_by": "2021-01-31",
+      "n_train": 1798776,
+      "n_val": 100978,
+      "n_test": 49693,
+      "train_ids_sha256": "0bf7b6c5dd47c814",
+      "val_ids_sha256": "a657a07215201f69",
+      "test_ids_sha256": "b023a76dd1ef827b",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": -0.029722837749143253,
+              "val_mse": 0.04214842478167354,
+              "seconds": 5.021
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": -0.03370139157512462,
+              "val_mse": 0.042169236311307014,
+              "seconds": 5.014
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.0416205388877435,
+              "val_mse": 0.04208597495645319,
+              "seconds": 5.017
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.06764650592835932,
+              "val_mse": 0.04207335504669934,
+              "seconds": 5.068
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.72549007243695,
+              1.666667
+            ]
+          },
+          "fit_predict_seconds": 20.19
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 316,
+              "val_rank_ic": 0.1436747486428782,
+              "val_mse": 0.041668311782300356,
+              "seconds": 27.84
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 37,
+              "val_rank_ic": 0.12658221437185446,
+              "val_mse": 0.0416390327744881,
+              "seconds": 13.54
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 316,
+            "target_clip": [
+              -0.72549007243695,
+              1.666667
+            ]
+          },
+          "fit_predict_seconds": 41.89
+        }
+      }
+    },
+    {
+      "fold": 2,
+      "test_years": [
+        2024
+      ],
+      "fit_cutoff": "2024-01-31",
+      "train_label_known_by": "2022-01-31",
+      "n_train": 1847171,
+      "n_val": 102276,
+      "n_test": 42967,
+      "train_ids_sha256": "3c9b16b7be9d0fe1",
+      "val_ids_sha256": "12f6e473d05634c8",
+      "test_ids_sha256": "cc8549095840b89d",
+      "models": {
+        "zero": {
+          "trials": [],
+          "chosen": {},
+          "fit_predict_seconds": 0.0
+        },
+        "reversal": {
+          "trials": [],
+          "chosen": {
+            "rule": "negative prediction-month return"
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "ridge": {
+          "trials": [
+            {
+              "alpha": 100.0,
+              "val_rank_ic": -0.04750562296391294,
+              "val_mse": 0.051524963547128454,
+              "seconds": 5.136
+            },
+            {
+              "alpha": 10000.0,
+              "val_rank_ic": -0.05347230154613014,
+              "val_mse": 0.05156203929987885,
+              "seconds": 5.21
+            },
+            {
+              "alpha": 1000000.0,
+              "val_rank_ic": -0.06568186566818333,
+              "val_mse": 0.05139790975021537,
+              "seconds": 5.161
+            },
+            {
+              "alpha": 100000000.0,
+              "val_rank_ic": -0.09745632770083053,
+              "val_mse": 0.051308962847831104,
+              "seconds": 5.211
+            }
+          ],
+          "chosen": {
+            "alpha": 100.0,
+            "target_clip": [
+              -0.72423843,
+              1.6666216100000197
+            ]
+          },
+          "fit_predict_seconds": 20.78
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 1,
+              "val_rank_ic": -0.0077605355483451295,
+              "val_mse": 0.05132965180781384,
+              "seconds": 7.64
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 17,
+              "val_rank_ic": 0.048838250258776666,
+              "val_mse": 0.05116160651603677,
+              "seconds": 11.91
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 17,
+            "target_clip": [
+              -0.72423843,
+              1.6666216100000197
+            ]
+          },
+          "fit_predict_seconds": 19.63
+        }
+      }
+    }
+  ],
+  "n_predictions": 580972,
+  "total_seconds": 143.5,
+  "environment": {
+    "python": "3.12.13",
+    "platform": "Linux-6.12.90+-x86_64-with-glibc2.35",
+    "packages": {
+      "pandas": "2.2.3",
+      "numpy": "2.4.6",
+      "pyarrow": "25.0.1",
+      "scipy": "1.17.1",
+      "scikit-learn": "1.9.0",
+      "lightgbm": "4.7.0",
+      "xgboost": "3.2.0",
+      "catboost": "1.2.10",
+      "joblib": "1.6.0",
+      "plotly": "7.0.0",
+      "streamlit": "1.64.0"
+    },
+    "n_jobs": 2
+  }
+}

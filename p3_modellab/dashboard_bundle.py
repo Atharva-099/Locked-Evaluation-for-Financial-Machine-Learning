@@ -16,6 +16,7 @@ REPORT_FILES = {
     "delisting": ("report_info.json", "model_summary.json", "comparisons.json", "pairwise_comparisons.json",
                   "monthly_metrics.parquet", "calibration.parquet", "budget_metrics.parquet"),
 }
+CORE_REPORT_FILES = ("report_info.json", "model_summary.json", "comparisons.json")
 
 
 def export_run(run_dir: Path, output_root: Path | None = None) -> Path:
@@ -27,7 +28,7 @@ def export_run(run_dir: Path, output_root: Path | None = None) -> Path:
     task = manifest.get("task")
     if task not in REPORT_FILES:
         raise ValueError(f"unsupported dashboard task {task!r}")
-    missing = [name for name in REPORT_FILES[task] if not (report_dir / name).exists()]
+    missing = [name for name in CORE_REPORT_FILES if not (report_dir / name).exists()]
     if missing:
         raise FileNotFoundError(f"report is missing dashboard artifacts: {missing}")
 
@@ -37,5 +38,7 @@ def export_run(run_dir: Path, output_root: Path | None = None) -> Path:
     # Keep the provenance and model specification, but never package row-level data.
     shutil.copy2(manifest_path, destination / "manifest.json")
     for name in REPORT_FILES[task]:
-        shutil.copy2(report_dir / name, target_report / name)
+        source = report_dir / name
+        if source.exists():
+            shutil.copy2(source, target_report / name)
     return destination

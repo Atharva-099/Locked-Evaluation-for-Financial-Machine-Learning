@@ -1,0 +1,450 @@
+{
+  "run_id": "20260930-200753-12e5-delisting-locked",
+  "created_utc": "2026-09-30T20:09:20+00:00",
+  "run_type": "locked",
+  "quick": false,
+  "evidence": true,
+  "task": "delisting",
+  "test_years": [
+    2022,
+    2023
+  ],
+  "reserved_start": "2022-01-01",
+  "embargo_years": [
+    2021
+  ],
+  "spec": {
+    "adverse_codes": [
+      400,
+      450,
+      460,
+      470,
+      480,
+      490,
+      500,
+      520,
+      550,
+      551,
+      552,
+      560,
+      561,
+      570,
+      573,
+      574,
+      575,
+      580,
+      581,
+      582,
+      583,
+      584,
+      585,
+      587,
+      589,
+      591
+    ],
+    "embargo_year": 2021,
+    "features": [
+      "ret_1m",
+      "ret_3m",
+      "ret_6m",
+      "momentum_12_2",
+      "volatility_12m",
+      "log_mcap",
+      "log_price",
+      "log_turnover",
+      "log_dollar_volume",
+      "market_ret_1m",
+      "is_nyse",
+      "is_amex",
+      "is_nasdaq"
+    ],
+    "firm_sample_percent": 100,
+    "label_definition": "primary",
+    "models": [
+      {
+        "kind": "baseline",
+        "name": "base_rate"
+      },
+      {
+        "cs": [
+          0.01,
+          1.0,
+          100.0
+        ],
+        "features": [
+          "ret_1m",
+          "ret_3m",
+          "ret_6m",
+          "momentum_12_2",
+          "volatility_12m",
+          "log_mcap",
+          "log_price",
+          "log_turnover",
+          "log_dollar_volume",
+          "market_ret_1m",
+          "is_nyse",
+          "is_amex",
+          "is_nasdaq"
+        ],
+        "kind": "model",
+        "max_train_rows": 400000,
+        "name": "logit",
+        "seed": 0
+      },
+      {
+        "features": [
+          "ret_1m",
+          "ret_3m",
+          "ret_6m",
+          "momentum_12_2",
+          "volatility_12m",
+          "log_mcap",
+          "log_price",
+          "log_turnover",
+          "log_dollar_volume",
+          "market_ret_1m",
+          "is_nyse",
+          "is_amex",
+          "is_nasdaq"
+        ],
+        "kind": "model",
+        "learning_rate": 0.05,
+        "leaves": [
+          15,
+          63
+        ],
+        "max_rounds": 1200,
+        "max_train_rows": 500000,
+        "n_jobs": 3,
+        "name": "lightgbm",
+        "patience": 75,
+        "seed": 0
+      },
+      {
+        "depths": [
+          3,
+          6
+        ],
+        "features": [
+          "ret_1m",
+          "ret_3m",
+          "ret_6m",
+          "momentum_12_2",
+          "volatility_12m",
+          "log_mcap",
+          "log_price",
+          "log_turnover",
+          "log_dollar_volume",
+          "market_ret_1m",
+          "is_nyse",
+          "is_amex",
+          "is_nasdaq"
+        ],
+        "kind": "model",
+        "learning_rate": 0.05,
+        "max_rounds": 1200,
+        "max_train_rows": 500000,
+        "n_jobs": 3,
+        "name": "xgboost",
+        "patience": 75,
+        "seed": 0
+      }
+    ],
+    "panel_config": {
+      "first_prediction_month": "1991-01",
+      "horizon_months": 12
+    },
+    "probability_target": "adverse delisting in months t+1 through t+12",
+    "refit_every": 1,
+    "sealed_outcome_start": "2022-01-01",
+    "seed": 0,
+    "selection_metric": "validation log loss",
+    "task": "delisting",
+    "validation_months": 24
+  },
+  "spec_hash": "3fed17485766f424",
+  "lock": {
+    "spec_hash": "3fed17485766f424",
+    "lock_created_utc": "2026-09-30T19:22:47+00:00",
+    "lock_code_hash": "9f0036f3f22b9954",
+    "code_changed_since_lock": false,
+    "previous_locked_runs": []
+  },
+  "code_hash": "9f0036f3f22b9954",
+  "code_changed_during_run": false,
+  "audit": {
+    "created_utc": "2026-09-25T20:30:30+00:00",
+    "coverage": {
+      "msf_last_month": "2024-12",
+      "daily_last_date": "2024-12-31",
+      "delist_last_date": "2024-12-31",
+      "last_complete_month": "2024-12",
+      "empty_daily_files": [
+        2025
+      ]
+    },
+    "cutoffs": {
+      "one_month_ahead_last_prediction_month": "2024-11",
+      "twelve_month_ahead_last_prediction_month": "2023-12"
+    },
+    "data_sha256": {
+      "msf": null,
+      "msenames": null,
+      "msedelist": null,
+      "ccm": null,
+      "fundq": null
+    }
+  },
+  "panel": {
+    "source": "supplied by caller",
+    "rows": 1952272
+  },
+  "feature_descriptions": {
+    "ret_1m": "stock return in the prediction month",
+    "ret_3m": "compounded stock return over prediction month and the prior 2 months",
+    "ret_6m": "compounded stock return over prediction month and the prior 5 months",
+    "momentum_12_2": "compounded return from months t-12 through t-2",
+    "volatility_12m": "standard deviation of monthly returns from t-11 through t, requiring at least 6 observations",
+    "log_mcap": "log of absolute month-end price times shares outstanding",
+    "log_price": "log of absolute month-end price",
+    "log_turnover": "log of monthly volume divided by shares outstanding",
+    "log_dollar_volume": "log of absolute price times monthly volume",
+    "market_ret_1m": "equal-weighted common-stock return in the prediction month",
+    "is_nyse": "one when the security is listed on NYSE",
+    "is_amex": "one when the security is listed on AMEX",
+    "is_nasdaq": "one when the security is listed on Nasdaq"
+  },
+  "label_definition": "primary",
+  "adverse_codes": {
+    "400": "liquidation",
+    "450": "liquidation with final payment",
+    "460": "declared worthless",
+    "470": "liquidation with no final value yet",
+    "480": "liquidation with no distribution yet",
+    "490": "liquidation with no distribution",
+    "500": "dropped, reason unavailable",
+    "520": "moved to OTC",
+    "550": "market makers",
+    "551": "shareholders",
+    "552": "low price",
+    "560": "insufficient capital",
+    "561": "insufficient float",
+    "570": "company request",
+    "573": "deregistration",
+    "574": "bankruptcy",
+    "575": "offer rescinded",
+    "580": "delinquent",
+    "581": "failure to register",
+    "582": "equity requirements",
+    "583": "denied exception",
+    "584": "financial guidelines",
+    "585": "public interest",
+    "587": "violation",
+    "589": "unlisted",
+    "591": "SEC required"
+  },
+  "folds": [
+    {
+      "fold": 0,
+      "test_years": [
+        2022
+      ],
+      "fit_cutoff": "2022-01-31",
+      "train_label_known_by": "2020-01-31",
+      "n_train": 1719082,
+      "n_val": 86110,
+      "n_test": 52627,
+      "train_ids_sha256": "4e328872fd935f35",
+      "val_ids_sha256": "692271f918d7e59c",
+      "test_ids_sha256": "876a537e4cf453d0",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.033951531136076615
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.05934970570036626,
+              "seconds": 2.18
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.059369158962181555,
+              "seconds": 1.97
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.05936935666356784,
+              "seconds": 1.97
+            }
+          ],
+          "chosen": {
+            "C": 0.01
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.38
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 75,
+              "val_log_loss": 0.058857286586822134,
+              "seconds": 6.11
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 80,
+              "val_log_loss": 0.05862835838210473,
+              "seconds": 7.99
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 80
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 14.61
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 91,
+              "val_log_loss": 0.05884258905146676,
+              "seconds": 8.53
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 81,
+              "val_log_loss": 0.058672249991660666,
+              "seconds": 10.51
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 81
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 19.73
+        }
+      }
+    },
+    {
+      "fold": 1,
+      "test_years": [
+        2023
+      ],
+      "fit_cutoff": "2023-01-31",
+      "train_label_known_by": "2021-01-31",
+      "n_train": 1762010,
+      "n_val": 92249,
+      "n_test": 49741,
+      "train_ids_sha256": "6c131924060611e1",
+      "val_ids_sha256": "9e08335a1d1cb110",
+      "test_ids_sha256": "e0b6fb7f5716146f",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.033583502032620685
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.05367724577924571,
+              "seconds": 1.81
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.05368610319405542,
+              "seconds": 1.94
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.05368619392109354,
+              "seconds": 2.01
+            }
+          ],
+          "chosen": {
+            "C": 0.01
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.04
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 71,
+              "val_log_loss": 0.050490878695280315,
+              "seconds": 5.99
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 77,
+              "val_log_loss": 0.050505302983217294,
+              "seconds": 7.89
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 71
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 14.31
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 104,
+              "val_log_loss": 0.04990155891291232,
+              "seconds": 9.55
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 110,
+              "val_log_loss": 0.050346062165219925,
+              "seconds": 12.25
+            }
+          ],
+          "chosen": {
+            "max_depth": 3,
+            "best_iteration": 104
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 22.17
+        }
+      }
+    }
+  ],
+  "n_predictions": 409472,
+  "total_seconds": 86.9,
+  "environment": {
+    "python": "3.12.13",
+    "platform": "Linux-6.12.90+-x86_64-with-glibc2.35",
+    "packages": {
+      "pandas": "2.2.3",
+      "numpy": "2.4.6",
+      "pyarrow": "25.0.1",
+      "scipy": "1.17.1",
+      "scikit-learn": "1.9.0",
+      "lightgbm": "4.7.0",
+      "xgboost": "3.2.0",
+      "catboost": "1.2.10",
+      "joblib": "1.6.0",
+      "plotly": "7.0.0",
+      "streamlit": "1.64.0"
+    },
+    "n_jobs": 2
+  }
+}

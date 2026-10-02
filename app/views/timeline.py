@@ -4,7 +4,8 @@ import streamlit as st
 from _common import NICE, badge, chart, explore_table, need_run, report_for, stats
 from p3_modellab import explore, plots
 
-st.title("Time slider")
+st.title("Volatility Performance Over Time")
+st.caption("Track the eight volatility models across locked and exploratory market periods.")
 r = need_run()
 badge(r)
 d = report_for(r)

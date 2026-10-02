@@ -24,28 +24,28 @@ NICE = plots.NICE
 TASK_NAMES = {"volatility": "Volatility", "returns": "Returns", "delisting": "Adverse delisting"}
 
 MODEL_CARDS = {
-    "persistence": {"one": "Next month will look like the last month.",
+    "persistence": {"one": "The market's copycat: next month repeats the last one.",
                     "how": "Copies the last 22 trading days' volatility. Nothing is learned.",
                     "uses": "1 input", "good": "Simple and honest benchmark", "bad": "Blind to calm stocks that suddenly jump"},
-    "har": {"one": "A fixed recipe: a bit of yesterday, last week and last month.",
+    "har": {"one": "The time-horizon blender: yesterday, last week and last month in one forecast.",
             "how": "Learns 4 numbers (3 weights and a constant) from past data.",
             "uses": "3 inputs", "good": "The textbook volatility benchmark", "bad": "Ignores size, liquidity and market mood"},
-    "ridge": {"one": "One weight per input, all added up.",
+    "ridge": {"one": "The disciplined scorecard: one restrained weight for every signal.",
               "how": "A straight-line model on 13 inputs, held back from overreacting.",
               "uses": "13 inputs", "good": "Stable; copes with never-seen extremes", "bad": "Cannot learn if-then patterns"},
-    "lightgbm": {"one": "Hundreds of small yes/no decision trees.",
+    "lightgbm": {"one": "The speedy tree relay: each tiny tree fixes the last one's mistakes.",
                  "how": "Each new tree fixes the mistakes of the trees before it.",
                  "uses": "13 inputs", "good": "Finds if-then patterns; ranks stocks best", "bad": "Over-trusts patterns that break in a crisis"},
-    "xgboost": {"one": "Boosted decision trees, grown level by level.",
+    "xgboost": {"one": "The careful tree team: every round studies what the earlier rounds missed.",
                 "how": "Same idea as LightGBM (each tree fixes earlier mistakes), different way of growing trees.",
                 "uses": "13 inputs", "good": "A widely used, well-tested booster", "bad": "Slower; similar blind spots to LightGBM"},
-    "catboost": {"one": "Boosted decision trees with balanced shapes.",
+    "catboost": {"one": "The balanced-tree specialist: steady shapes with little fussing over settings.",
                  "how": "Every tree splits on the same question at each level, which tends to resist overfitting.",
                  "uses": "13 inputs", "good": "Stable with little tuning", "bad": "Slowest of the tree models"},
-    "extratrees": {"one": "Many independent random trees, averaged (a random forest).",
+    "extratrees": {"one": "The crowd vote: many randomized trees average away one another's noise.",
                    "how": "Each tree is built with random splits; averaging smooths out their mistakes.",
                    "uses": "13 inputs", "good": "Robust, hard to overfit", "bad": "Cannot forecast beyond values it has seen"},
-    "mlp": {"one": "A small neural network.",
+    "mlp": {"one": "The compact pattern hunter: two neural layers chase smooth nonlinear clues.",
             "how": "Two layers of simple units learn smooth patterns; training stops when the tuning score stops improving.",
             "uses": "13 inputs", "good": "Learns smooth curved patterns", "bad": "Sensitive to settings; needs lots of data"},
 }
@@ -64,11 +64,39 @@ ESTIMATES = {
 _PROCS: dict[str, subprocess.Popen] = {}
 
 
+def show_development_runs() -> bool:
+    """Quick runs and demo sweeps stay local unless explicitly requested."""
+    return os.environ.get("P3_SHOW_DEVELOPMENT_RUNS", "").strip().lower() in {"1", "true", "yes"}
+
+
+def has_training_panel() -> bool:
+    """Whether this checkout can fit models instead of only reading saved reports."""
+    panel, _, meta = volatility.panel_paths()
+    return panel.exists() and meta.exists()
+
+
+def has_detailed_pages() -> bool:
+    """Detailed diagnostics need row-level forecasts and the local feature panel."""
+    return has_training_panel() and bool(detailed_volatility_runs())
+
+
+def has_sweep_pages() -> bool:
+    """Expose the local robustness workspace when any sweep artifact exists."""
+    root = config.RESULTS_DIR / "sweeps"
+    return root.exists() and any(root.glob("*/manifest.json"))
+
+
 def _read(p: Path) -> dict:
     return json.loads(p.read_text())
 
 
-def runs() -> list[dict]:
+def runs(task: str | None = None) -> list[dict]:
+    """Return local runs, optionally limited to one task.
+
+    The detailed Results, Misses, and Time Slider pages consume volatility-only
+    report artifacts. Cross-task reports belong in ``report_catalog()`` and the
+    Model comparison page.
+    """
     out = []
     if not config.RUNS_DIR.exists():
         return out
@@ -76,10 +104,57 @@ def runs() -> list[dict]:
         if not (d / "manifest.json").exists():
             continue
         m = _read(d / "manifest.json")
+        run_task = m.get("task", "volatility")
+        if task is not None and run_task != task:
+            continue
         out.append({"path": d, "run_id": m["run_id"], "type": m["run_type"], "quick": m["quick"], "evidence": m["evidence"],
                     "test_years": f"{m['test_years'][0]} to {m['test_years'][-1]}", "forecasts": m["n_predictions"],
-                    "has_report": (d / "report" / "report_info.json").exists(), "created": m["created_utc"]})
+                    "has_report": (d / "report" / "report_info.json").exists(), "created": m["created_utc"],
+                    "task": run_task})
     return out
+
+
+_VOLATILITY_DETAIL_FILES = {
+    "report_info.json", "model_summary.json", "comparisons.json", "by_year.parquet",
+    "slices.parquet", "worst_cases.parquet", "calibration.parquet", "importance.parquet",
+    "monthly_losses.parquet",
+}
+
+
+def detailed_volatility_runs() -> list[dict]:
+    """Find complete local volatility reports, including downloaded Kaggle runs."""
+    out, seen = [], set()
+    if not config.RESULTS_DIR.exists():
+        return out
+    for manifest_path in config.RESULTS_DIR.rglob("manifest.json"):
+        run_dir = manifest_path.parent
+        report_dir = run_dir / "report"
+        if not (run_dir / "predictions.parquet").exists():
+            continue
+        if not all((report_dir / name).exists() for name in _VOLATILITY_DETAIL_FILES):
+            continue
+        try:
+            manifest = _read(manifest_path)
+            summary = _read(report_dir / "model_summary.json")
+        except (OSError, json.JSONDecodeError):
+            continue
+        if manifest.get("task", "volatility") != "volatility" or manifest.get("run_id") in seen:
+            continue
+        row = {
+            "path": run_dir, "run_id": manifest["run_id"], "type": manifest["run_type"],
+            "quick": manifest["quick"], "evidence": manifest["evidence"],
+            "test_years": f"{manifest['test_years'][0]} to {manifest['test_years'][-1]}",
+            "forecasts": manifest["n_predictions"], "has_report": True,
+            "created": manifest["created_utc"], "task": "volatility", "model_count": len(summary),
+        }
+        out.append(row)
+        seen.add(manifest["run_id"])
+    if not show_development_runs():
+        out = [row for row in out if row["evidence"] and not row["quick"]]
+        if out:
+            complete_count = max(row["model_count"] for row in out)
+            out = [row for row in out if row["model_count"] == complete_count]
+    return sorted(out, key=lambda row: (row["evidence"], row["model_count"], row["created"]), reverse=True)
 
 
 def report_catalog() -> list[dict]:
@@ -105,8 +180,22 @@ def report_catalog() -> list[dict]:
             "evidence": bool(manifest.get("evidence")), "created": manifest.get("created_utc", ""),
             "test_years": years, "forecasts": int(manifest.get("n_predictions", 0)),
             "models": [model.get("name") for model in manifest.get("spec", {}).get("models", [])],
+            "label_definition": manifest.get("spec", {}).get("label_definition", "primary"),
         })
         seen.add(manifest["run_id"])
+    if not show_development_runs():
+        out = [row for row in out if row["evidence"] and not row["quick"]]
+        maximums: dict[tuple, int] = {}
+        for row in out:
+            if row["task"] != "volatility":
+                continue
+            key = (row["type"], tuple(row["test_years"]), row["label_definition"])
+            maximums[key] = max(maximums.get(key, 0), len(row["models"]))
+        out = [
+            row for row in out
+            if row["task"] != "volatility"
+            or len(row["models"]) == maximums[(row["type"], tuple(row["test_years"]), row["label_definition"])]
+        ]
     return sorted(out, key=lambda row: (row["evidence"], len(row["models"]), row["created"]), reverse=True)
 
 
@@ -114,7 +203,9 @@ def catalog_label(run: dict) -> str:
     years = run["test_years"]
     span = f"{years[0]}-{years[-1]}" if years else "unknown years"
     status = "quick check" if run["quick"] else run["type"]
-    return f"{TASK_NAMES[run['task']]} · {len(run['models'])} models · {span} · {status}"
+    label = run.get("label_definition", "primary").replace("_", " ")
+    label_text = f" · {label} label" if run["task"] == "delisting" and label != "primary" else ""
+    return f"{TASK_NAMES[run['task']]} · {len(run['models'])} models · {span} · {status}{label_text}"
 
 
 def sweeps() -> list[dict]:
@@ -125,7 +216,10 @@ def sweeps() -> list[dict]:
     for d in sorted(root.glob("2*"), reverse=True):
         if (d / "manifest.json").exists():
             m = _read(d / "manifest.json")
-            out.append({"path": d, "kind": m["kind"], "size": m.get("size", "standard"), "trials": m["n_trials"], "created": m["created_utc"][:16]})
+            size = m.get("size", "standard") or "standard"
+            if size == "demo" and not show_development_runs():
+                continue
+            out.append({"path": d, "kind": m["kind"], "size": size, "trials": m["n_trials"], "created": m["created_utc"][:16]})
     return out
 
 
@@ -135,12 +229,13 @@ def mtime(p: Path) -> float:
 
 def run_label(r: dict) -> str:
     kind = "QUICK" if r["quick"] else r["type"]
-    return f"{r['created'][:16].replace('T', ' ')}  ({kind}, {r['test_years']})"
+    count = f", {r['model_count']} models" if r.get("model_count") else ""
+    return f"{r['created'][:16].replace('T', ' ')}  ({kind}, {r['test_years']}{count})"
 
 
 def current_run() -> dict | None:
-    """The run chosen in the sidebar ('Results from'), if any run has a report."""
-    reported = [r for r in runs() if r["has_report"]]
+    """The volatility run chosen for the detailed pages, if one has a report."""
+    reported = detailed_volatility_runs()
     if not reported:
         return None
     chosen = st.session_state.get("run_id")
@@ -285,10 +380,12 @@ def confirm(key: str, where=st) -> bool:
 
 
 def theme_toggle() -> None:
-    """Light / dark switch. Uses Streamlit's config at runtime (not an official API); falls back to a hint if that fails."""
+    """Render the light/dark control at the top-right of the main page."""
     ctx_theme = getattr(getattr(st, "context", None), "theme", None)
     start_dark = getattr(ctx_theme, "type", "light") == "dark"
-    dark = st.toggle("Dark mode", value=st.session_state.get("dark_mode", start_dark), key="dark_mode")
+    _, control = st.columns([9, 1])
+    with control:
+        dark = st.toggle("Dark theme", value=st.session_state.get("dark_mode", start_dark), key="dark_mode")
     want = "dark" if dark else "light"
     if st.session_state.get("_theme_applied") != want:
         st.session_state["_theme_applied"] = want
@@ -301,15 +398,24 @@ def theme_toggle() -> None:
 
 
 def sidebar_controls() -> None:
-    """Shown on every page: which results to view, and buttons to run models or build a report."""
+    """Shown on every page: detailed volatility run controls and background jobs."""
     with st.sidebar:
-        theme_toggle()
-        reported = [r for r in runs() if r["has_report"]]
-        if reported:
+        reported = detailed_volatility_runs()
+        local_panel = has_training_panel()
+        if reported and local_panel:
             cur = current_run()
-            st.selectbox("Results from", [r["run_id"] for r in reported], index=[r["run_id"] for r in reported].index(cur["run_id"]),
+            run_ids = [r["run_id"] for r in reported]
+            if st.session_state.get("run_id") not in run_ids:
+                st.session_state["run_id"] = cur["run_id"]
+            st.selectbox("Volatility study", run_ids, index=run_ids.index(cur["run_id"]),
                          format_func=lambda rid: run_label(next(r for r in reported if r["run_id"] == rid)), key="run_id",
-                         help="Which saved run the pages show.")
+                         help="Saved eight-model volatility study used by Volatility Analysis, Error Analysis, and Performance Over Time.")
+        if not local_panel:
+            st.caption(
+                "Public view: charts use the saved aggregate results. "
+                "Model fitting and detailed forecast analysis run from the repository workflow."
+            )
+            return
         st.markdown("#### Run models")
         kind = st.segmented_control("Kind", ["Quick", "Full"], default="Quick", key="run_kind", label_visibility="collapsed",
                                     help="Quick: 20% of firms, retrain every 3 years, a functional check only. Full: all firms, every year 2000 to 2021.")
@@ -317,7 +423,7 @@ def sidebar_controls() -> None:
         if confirm("run_full" if full else "run_quick") and st.button("Start run", width="stretch"):
             job = start_job("full run" if full else "quick run", ["run"] if full else ["run", "--quick"])
             st.toast(f"Started: {job['command']}")
-        todo = [r for r in runs() if not r["has_report"]]
+        todo = [r for r in runs("volatility") if not r["has_report"]]
         if todo:
             st.markdown("#### Build a report")
             pick = st.selectbox("Run", [r["run_id"] for r in todo], format_func=lambda rid: run_label(next(r for r in todo if r["run_id"] == rid)),

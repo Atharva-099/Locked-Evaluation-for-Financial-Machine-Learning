@@ -3,7 +3,8 @@ import streamlit as st
 from _common import NICE, badge, chart, need_run, report_for, stats
 from p3_modellab import misses, plots
 
-st.title("Misses")
+st.title("Volatility Error Analysis")
+st.caption("Inspect market segments and individual forecasts where volatility models gain or lose accuracy.")
 r = need_run()
 badge(r)
 d = report_for(r)

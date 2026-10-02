@@ -1,33 +1,14 @@
 {
-  "created_utc": "2026-09-30T07:02:55+00:00",
-  "run_id": "20260930-044325-55c1-volatility-exploratory",
-  "run_type": "exploratory",
+  "created_utc": "2026-09-30T19:55:21+00:00",
+  "run_id": "20260930-194039-9962-volatility-locked",
+  "run_type": "locked",
   "evidence": true,
   "test_years_inspected": [
-    2000,
-    2001,
-    2002,
-    2003,
-    2004,
-    2005,
-    2006,
-    2007,
-    2008,
-    2009,
-    2010,
-    2011,
-    2012,
-    2013,
-    2014,
-    2015,
-    2016,
-    2017,
-    2018,
-    2019,
-    2020,
-    2021
+    2022,
+    2023,
+    2024
   ],
-  "report_code_hash": "3c908457aaa956b3",
+  "report_code_hash": "9f0036f3f22b9954",
   "seed": 0,
   "primary_metric": "QLIKE (lower is better); differences are model minus baseline, so negative favours the model",
   "weighting": "every month counts equally; examples within a month count equally",
@@ -40,7 +21,7 @@
     "months_for_year_slices": 10
   },
   "industry_mapping_verified": true,
-  "importance_rows_per_period": 20000,
-  "industry_mapping_source": "Kenneth French Data Library Siccodes12.zip",
-  "industry_mapping_sha256": "55b51d1dc6939a570cd866824e9d49a9b16c0ad6247286b676aca25af8c78409"
+  "industry_mapping_source": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/Siccodes12.zip",
+  "industry_mapping_sha256": "55b51d1dc6939a570cd866824e9d49a9b16c0ad6247286b676aca25af8c78409",
+  "importance_rows_per_period": 20000
 }

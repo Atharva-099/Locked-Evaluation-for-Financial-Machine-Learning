@@ -1,0 +1,2176 @@
+{
+  "run_id": "20260930-183748-590d-delisting-financial_distress-exploratory",
+  "created_utc": "2026-09-30T18:55:08+00:00",
+  "run_type": "exploratory",
+  "quick": false,
+  "evidence": true,
+  "task": "delisting",
+  "test_years": [
+    2000,
+    2001,
+    2002,
+    2003,
+    2004,
+    2005,
+    2006,
+    2007,
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020
+  ],
+  "reserved_start": "2022-01-01",
+  "embargo_years": [
+    2021
+  ],
+  "spec": {
+    "adverse_codes": [
+      400,
+      450,
+      460,
+      470,
+      480,
+      490,
+      552,
+      560,
+      561,
+      574,
+      580,
+      581,
+      582,
+      583,
+      584,
+      585,
+      587,
+      591
+    ],
+    "embargo_year": 2021,
+    "features": [
+      "ret_1m",
+      "ret_3m",
+      "ret_6m",
+      "momentum_12_2",
+      "volatility_12m",
+      "log_mcap",
+      "log_price",
+      "log_turnover",
+      "log_dollar_volume",
+      "market_ret_1m",
+      "is_nyse",
+      "is_amex",
+      "is_nasdaq"
+    ],
+    "firm_sample_percent": 100,
+    "label_definition": "financial_distress",
+    "models": [
+      {
+        "kind": "baseline",
+        "name": "base_rate"
+      },
+      {
+        "cs": [
+          0.01,
+          1.0,
+          100.0
+        ],
+        "features": [
+          "ret_1m",
+          "ret_3m",
+          "ret_6m",
+          "momentum_12_2",
+          "volatility_12m",
+          "log_mcap",
+          "log_price",
+          "log_turnover",
+          "log_dollar_volume",
+          "market_ret_1m",
+          "is_nyse",
+          "is_amex",
+          "is_nasdaq"
+        ],
+        "kind": "model",
+        "max_train_rows": 400000,
+        "name": "logit",
+        "seed": 0
+      },
+      {
+        "features": [
+          "ret_1m",
+          "ret_3m",
+          "ret_6m",
+          "momentum_12_2",
+          "volatility_12m",
+          "log_mcap",
+          "log_price",
+          "log_turnover",
+          "log_dollar_volume",
+          "market_ret_1m",
+          "is_nyse",
+          "is_amex",
+          "is_nasdaq"
+        ],
+        "kind": "model",
+        "learning_rate": 0.05,
+        "leaves": [
+          15,
+          63
+        ],
+        "max_rounds": 1200,
+        "max_train_rows": 500000,
+        "n_jobs": 2,
+        "name": "lightgbm",
+        "patience": 75,
+        "seed": 0
+      },
+      {
+        "depths": [
+          3,
+          6
+        ],
+        "features": [
+          "ret_1m",
+          "ret_3m",
+          "ret_6m",
+          "momentum_12_2",
+          "volatility_12m",
+          "log_mcap",
+          "log_price",
+          "log_turnover",
+          "log_dollar_volume",
+          "market_ret_1m",
+          "is_nyse",
+          "is_amex",
+          "is_nasdaq"
+        ],
+        "kind": "model",
+        "learning_rate": 0.05,
+        "max_rounds": 1200,
+        "max_train_rows": 500000,
+        "n_jobs": 2,
+        "name": "xgboost",
+        "patience": 75,
+        "seed": 0
+      }
+    ],
+    "panel_config": {
+      "first_prediction_month": "1991-01",
+      "horizon_months": 12
+    },
+    "probability_target": "adverse delisting in months t+1 through t+12",
+    "refit_every": 1,
+    "sealed_outcome_start": "2022-01-01",
+    "seed": 0,
+    "selection_metric": "validation log loss",
+    "task": "delisting",
+    "validation_months": 24
+  },
+  "spec_hash": "d33239db87028bf8",
+  "lock": null,
+  "code_hash": "9f0036f3f22b9954",
+  "code_changed_during_run": false,
+  "audit": {
+    "created_utc": "2026-09-25T20:30:30+00:00",
+    "coverage": {
+      "msf_last_month": "2024-12",
+      "daily_last_date": "2024-12-31",
+      "delist_last_date": "2024-12-31",
+      "last_complete_month": "2024-12",
+      "empty_daily_files": [
+        2025
+      ]
+    },
+    "cutoffs": {
+      "one_month_ahead_last_prediction_month": "2024-11",
+      "twelve_month_ahead_last_prediction_month": "2023-12"
+    },
+    "data_sha256": {
+      "msf": null,
+      "msenames": null,
+      "msedelist": null,
+      "ccm": null,
+      "fundq": null
+    }
+  },
+  "panel": {
+    "source": "supplied by caller",
+    "rows": 1952272
+  },
+  "feature_descriptions": {
+    "ret_1m": "stock return in the prediction month",
+    "ret_3m": "compounded stock return over prediction month and the prior 2 months",
+    "ret_6m": "compounded stock return over prediction month and the prior 5 months",
+    "momentum_12_2": "compounded return from months t-12 through t-2",
+    "volatility_12m": "standard deviation of monthly returns from t-11 through t, requiring at least 6 observations",
+    "log_mcap": "log of absolute month-end price times shares outstanding",
+    "log_price": "log of absolute month-end price",
+    "log_turnover": "log of monthly volume divided by shares outstanding",
+    "log_dollar_volume": "log of absolute price times monthly volume",
+    "market_ret_1m": "equal-weighted common-stock return in the prediction month",
+    "is_nyse": "one when the security is listed on NYSE",
+    "is_amex": "one when the security is listed on AMEX",
+    "is_nasdaq": "one when the security is listed on Nasdaq"
+  },
+  "label_definition": "financial_distress",
+  "adverse_codes": {
+    "400": "liquidation",
+    "450": "liquidation with final payment",
+    "460": "declared worthless",
+    "470": "liquidation with no final value yet",
+    "480": "liquidation with no distribution yet",
+    "490": "liquidation with no distribution",
+    "552": "low price",
+    "560": "insufficient capital",
+    "561": "insufficient float",
+    "574": "bankruptcy",
+    "580": "delinquent",
+    "581": "failure to register",
+    "582": "equity requirements",
+    "583": "denied exception",
+    "584": "financial guidelines",
+    "585": "public interest",
+    "587": "violation",
+    "591": "SEC required"
+  },
+  "folds": [
+    {
+      "fold": 0,
+      "test_years": [
+        2000
+      ],
+      "fit_cutoff": "2000-01-31",
+      "train_label_known_by": "1998-01-31",
+      "n_train": 462125,
+      "n_val": 174673,
+      "n_test": 78011,
+      "train_ids_sha256": "8613172089fb6d77",
+      "val_ids_sha256": "e0b24585f2c84f5b",
+      "test_ids_sha256": "1134388b5e73d6c5",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.030077294936878687
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.12837777117251073,
+              "seconds": 2.18
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.12844660475350658,
+              "seconds": 2.22
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.12844734637030883,
+              "seconds": 2.38
+            }
+          ],
+          "chosen": {
+            "C": 0.01
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 7.03
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 72,
+              "val_log_loss": 0.12532732093219895,
+              "seconds": 5.0
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 63,
+              "val_log_loss": 0.12534859480962507,
+              "seconds": 5.97
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 72
+          },
+          "training_rows_used": 462125,
+          "fit_predict_seconds": 11.18
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 81,
+              "val_log_loss": 0.1255531575240461,
+              "seconds": 8.33
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 62,
+              "val_log_loss": 0.12480787609504584,
+              "seconds": 8.53
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 62
+          },
+          "training_rows_used": 462125,
+          "fit_predict_seconds": 17.38
+        }
+      }
+    },
+    {
+      "fold": 1,
+      "test_years": [
+        2001
+      ],
+      "fit_cutoff": "2001-01-31",
+      "train_label_known_by": "1999-01-31",
+      "n_train": 550696,
+      "n_val": 166400,
+      "n_test": 71187,
+      "train_ids_sha256": "6ee8fd7cab5a4fa1",
+      "val_ids_sha256": "73053f1d2dcc1b7a",
+      "test_ids_sha256": "c87661dfd52379be",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.03132121656736826
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.13060169208910907,
+              "seconds": 2.27
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.1306848749866053,
+              "seconds": 2.4
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.13068575996095408,
+              "seconds": 2.32
+            }
+          ],
+          "chosen": {
+            "C": 0.01
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 7.24
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 223,
+              "val_log_loss": 0.12455310590312656,
+              "seconds": 9.9
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 89,
+              "val_log_loss": 0.12447446228363643,
+              "seconds": 7.61
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 89
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 18.05
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 523,
+              "val_log_loss": 0.12449522073649995,
+              "seconds": 28.8
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 151,
+              "val_log_loss": 0.12453754724822659,
+              "seconds": 13.84
+            }
+          ],
+          "chosen": {
+            "max_depth": 3,
+            "best_iteration": 523
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 43.16
+        }
+      }
+    },
+    {
+      "fold": 2,
+      "test_years": [
+        2002
+      ],
+      "fit_cutoff": "2002-01-31",
+      "train_label_known_by": "2000-01-31",
+      "n_train": 636798,
+      "n_val": 157989,
+      "n_test": 64702,
+      "train_ids_sha256": "1058ef12bfe3b4d4",
+      "val_ids_sha256": "8715e49d94e56f04",
+      "test_ids_sha256": "4d47a670640d5f64",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.034154419212341726
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.1390437455620587,
+              "seconds": 2.41
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.1391157135794029,
+              "seconds": 2.37
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.13911646402220787,
+              "seconds": 2.37
+            }
+          ],
+          "chosen": {
+            "C": 0.01
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 7.4
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 98,
+              "val_log_loss": 0.13192324054627463,
+              "seconds": 6.21
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 71,
+              "val_log_loss": 0.1318226444932343,
+              "seconds": 6.78
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 71
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 13.47
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 186,
+              "val_log_loss": 0.13257067611321519,
+              "seconds": 12.78
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 79,
+              "val_log_loss": 0.1320130817791319,
+              "seconds": 10.17
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 79
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 23.31
+        }
+      }
+    },
+    {
+      "fold": 3,
+      "test_years": [
+        2003
+      ],
+      "fit_cutoff": "2003-01-31",
+      "train_label_known_by": "2001-01-31",
+      "n_train": 717096,
+      "n_val": 148197,
+      "n_test": 59825,
+      "train_ids_sha256": "12a8de91b886803a",
+      "val_ids_sha256": "ba129fadc3a9a588",
+      "test_ids_sha256": "af2bf5f3ecf89c77",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.0345692423758571
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.14846963236295557,
+              "seconds": 2.2
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.14850050014076388,
+              "seconds": 2.25
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.14850082343125032,
+              "seconds": 2.42
+            }
+          ],
+          "chosen": {
+            "C": 0.01
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 7.11
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 74,
+              "val_log_loss": 0.14547859053788448,
+              "seconds": 5.45
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 59,
+              "val_log_loss": 0.14570293393492073,
+              "seconds": 6.33
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 74
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 12.2
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 112,
+              "val_log_loss": 0.14595048142356476,
+              "seconds": 10.14
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 67,
+              "val_log_loss": 0.14501839850758128,
+              "seconds": 9.3
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 67
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 19.76
+        }
+      }
+    },
+    {
+      "fold": 4,
+      "test_years": [
+        2004
+      ],
+      "fit_cutoff": "2004-01-30",
+      "train_label_known_by": "2002-01-30",
+      "n_train": 788518,
+      "n_val": 141057,
+      "n_test": 57847,
+      "train_ids_sha256": "beb1fc5d51d583f1",
+      "val_ids_sha256": "95750e34726a5dbb",
+      "test_ids_sha256": "b1f3ec7a89a3aafc",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.03667698558944046
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.12862790393132195,
+              "seconds": 2.02
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.1286353155795954,
+              "seconds": 1.97
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.12863539734895385,
+              "seconds": 1.99
+            }
+          ],
+          "chosen": {
+            "C": 0.01
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.25
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 49,
+              "val_log_loss": 0.1307125002440445,
+              "seconds": 4.69
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 51,
+              "val_log_loss": 0.1310023205730788,
+              "seconds": 5.99
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 49
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 11.06
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 72,
+              "val_log_loss": 0.12967750277046428,
+              "seconds": 7.33
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 46,
+              "val_log_loss": 0.1304888829467165,
+              "seconds": 7.85
+            }
+          ],
+          "chosen": {
+            "max_depth": 3,
+            "best_iteration": 72
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 15.49
+        }
+      }
+    },
+    {
+      "fold": 5,
+      "test_years": [
+        2005
+      ],
+      "fit_cutoff": "2005-01-31",
+      "train_label_known_by": "2003-01-31",
+      "n_train": 865293,
+      "n_val": 123795,
+      "n_test": 57150,
+      "train_ids_sha256": "3c1dd44f82d54caa",
+      "val_ids_sha256": "593037f3d5d641d2",
+      "test_ids_sha256": "dbcf10ece6b8240d",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.03799691203221102
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.09163384577752495,
+              "seconds": 2.14
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.0916240396832949,
+              "seconds": 2.28
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.09162394504466327,
+              "seconds": 2.22
+            }
+          ],
+          "chosen": {
+            "C": 100.0
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.89
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 211,
+              "val_log_loss": 0.09204980361210184,
+              "seconds": 9.42
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 118,
+              "val_log_loss": 0.09239419252047823,
+              "seconds": 8.74
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 211
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 18.88
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 172,
+              "val_log_loss": 0.0924341511422958,
+              "seconds": 11.06
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 122,
+              "val_log_loss": 0.09189333793562598,
+              "seconds": 11.59
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 122
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 23.02
+        }
+      }
+    },
+    {
+      "fold": 6,
+      "test_years": [
+        2006
+      ],
+      "fit_cutoff": "2006-01-31",
+      "train_label_known_by": "2004-01-31",
+      "n_train": 929575,
+      "n_val": 117297,
+      "n_test": 56274,
+      "train_ids_sha256": "6c6fac97ae292d46",
+      "val_ids_sha256": "610d0398a5b7dc17",
+      "test_ids_sha256": "b78df3bde3e189ca",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.038566507741163714
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.060948876625835646,
+              "seconds": 2.14
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.06093077504144164,
+              "seconds": 2.28
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.06093059507090634,
+              "seconds": 2.27
+            }
+          ],
+          "chosen": {
+            "C": 100.0
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.94
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 560,
+              "val_log_loss": 0.060695311320010464,
+              "seconds": 18.54
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 172,
+              "val_log_loss": 0.06088908743914424,
+              "seconds": 10.45
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 560
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 30.25
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 756,
+              "val_log_loss": 0.060699901361594345,
+              "seconds": 33.14
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 136,
+              "val_log_loss": 0.06083599147865972,
+              "seconds": 11.76
+            }
+          ],
+          "chosen": {
+            "max_depth": 3,
+            "best_iteration": 756
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 45.47
+        }
+      }
+    },
+    {
+      "fold": 7,
+      "test_years": [
+        2007
+      ],
+      "fit_cutoff": "2007-01-31",
+      "train_label_known_by": "2005-01-31",
+      "n_train": 989088,
+      "n_val": 114858,
+      "n_test": 55307,
+      "train_ids_sha256": "38f24680121ad563",
+      "val_ids_sha256": "0d55db8248fdcd11",
+      "test_ids_sha256": "8757858bdea26965",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.03740158873468414
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.05617928268750119,
+              "seconds": 2.24
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.05616104629864927,
+              "seconds": 2.27
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.05616086459582457,
+              "seconds": 2.2
+            }
+          ],
+          "chosen": {
+            "C": 100.0
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.96
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 203,
+              "val_log_loss": 0.056076407567698314,
+              "seconds": 9.09
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 95,
+              "val_log_loss": 0.056172915213919886,
+              "seconds": 7.43
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 203
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 17.15
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 352,
+              "val_log_loss": 0.05594207374865218,
+              "seconds": 17.3
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 128,
+              "val_log_loss": 0.05590168456808039,
+              "seconds": 11.59
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 128
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 29.26
+        }
+      }
+    },
+    {
+      "fold": 8,
+      "test_years": [
+        2008
+      ],
+      "fit_cutoff": "2008-01-31",
+      "train_label_known_by": "2006-01-31",
+      "n_train": 1046872,
+      "n_val": 113280,
+      "n_test": 53574,
+      "train_ids_sha256": "ac14dec41a32fbeb",
+      "val_ids_sha256": "fedad7b79b42ea58",
+      "test_ids_sha256": "69d96867afd3f2ef",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.03624842745968231
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.042796414720139696,
+              "seconds": 2.1
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.042776416544214414,
+              "seconds": 2.1
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.04277621707260582,
+              "seconds": 2.19
+            }
+          ],
+          "chosen": {
+            "C": 100.0
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.64
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 165,
+              "val_log_loss": 0.041860924811805894,
+              "seconds": 7.94
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 108,
+              "val_log_loss": 0.041836239564601904,
+              "seconds": 7.93
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 108
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 16.44
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 616,
+              "val_log_loss": 0.04167584666795052,
+              "seconds": 28.13
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 209,
+              "val_log_loss": 0.04162714025013996,
+              "seconds": 15.45
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 209
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 44.02
+        }
+      }
+    },
+    {
+      "fold": 9,
+      "test_years": [
+        2009
+      ],
+      "fit_cutoff": "2009-01-30",
+      "train_label_known_by": "2007-01-30",
+      "n_train": 1099229,
+      "n_val": 116155,
+      "n_test": 49941,
+      "train_ids_sha256": "1dc0cd1c5bdab41d",
+      "val_ids_sha256": "823f0a7c69d67ac6",
+      "test_ids_sha256": "3de62a5c3438b083",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.03533518917787906
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.049264189072217315,
+              "seconds": 2.29
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.04924909607014722,
+              "seconds": 2.21
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.04924894560915783,
+              "seconds": 2.22
+            }
+          ],
+          "chosen": {
+            "C": 100.0
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.99
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 169,
+              "val_log_loss": 0.04855293308366308,
+              "seconds": 8.21
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 108,
+              "val_log_loss": 0.04843572004409843,
+              "seconds": 8.07
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 108
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 16.85
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 341,
+              "val_log_loss": 0.04830831791524087,
+              "seconds": 17.56
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 133,
+              "val_log_loss": 0.04831464185152199,
+              "seconds": 11.99
+            }
+          ],
+          "chosen": {
+            "max_depth": 3,
+            "best_iteration": 341
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 29.97
+        }
+      }
+    },
+    {
+      "fold": 10,
+      "test_years": [
+        2010
+      ],
+      "fit_cutoff": "2010-01-29",
+      "train_label_known_by": "2008-01-29",
+      "n_train": 1155503,
+      "n_val": 113182,
+      "n_test": 47952,
+      "train_ids_sha256": "fed679ab700bb1f1",
+      "val_ids_sha256": "d42b07183c4a03f4",
+      "test_ids_sha256": "0712842cafde677b",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.03394233165787397
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.09602633254992689,
+              "seconds": 2.21
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.0960472383636813,
+              "seconds": 2.3
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.09604745216262424,
+              "seconds": 2.26
+            }
+          ],
+          "chosen": {
+            "C": 0.01
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 7.04
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 127,
+              "val_log_loss": 0.09473245600245507,
+              "seconds": 6.89
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 120,
+              "val_log_loss": 0.09492718937748414,
+              "seconds": 8.4
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 127
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 15.81
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 70,
+              "val_log_loss": 0.09528878791441853,
+              "seconds": 6.83
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 48,
+              "val_log_loss": 0.09511678955256873,
+              "seconds": 7.9
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 48
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 15.06
+        }
+      }
+    },
+    {
+      "fold": 11,
+      "test_years": [
+        2011
+      ],
+      "fit_cutoff": "2011-01-31",
+      "train_label_known_by": "2009-01-31",
+      "n_train": 1215384,
+      "n_val": 102994,
+      "n_test": 46139,
+      "train_ids_sha256": "c892a79c87157bf5",
+      "val_ids_sha256": "19ce9a54b421118c",
+      "test_ids_sha256": "8246bca9e540113d",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.033189071775610195
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.11280931687716607,
+              "seconds": 1.97
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.11284494090242135,
+              "seconds": 1.98
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.112845303614689,
+              "seconds": 2.14
+            }
+          ],
+          "chosen": {
+            "C": 0.01
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.37
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 121,
+              "val_log_loss": 0.10658366903768392,
+              "seconds": 6.74
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 61,
+              "val_log_loss": 0.1068344557728716,
+              "seconds": 6.32
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 121
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 13.53
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 438,
+              "val_log_loss": 0.10976973131046665,
+              "seconds": 20.3
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 169,
+              "val_log_loss": 0.10916379588642391,
+              "seconds": 13.25
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 169
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 33.96
+        }
+      }
+    },
+    {
+      "fold": 12,
+      "test_years": [
+        2012
+      ],
+      "fit_cutoff": "2012-01-31",
+      "train_label_known_by": "2010-01-31",
+      "n_train": 1268685,
+      "n_val": 97510,
+      "n_test": 44550,
+      "train_ids_sha256": "86a8cd771e572ae4",
+      "val_ids_sha256": "257a9f64a621a214",
+      "test_ids_sha256": "c82d3d86940c7982",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.03347912722296928
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.08367513660642237,
+              "seconds": 2.18
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.08367148206438814,
+              "seconds": 2.19
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.0836714469919611,
+              "seconds": 2.19
+            }
+          ],
+          "chosen": {
+            "C": 100.0
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.83
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 117,
+              "val_log_loss": 0.08033081664313642,
+              "seconds": 6.57
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 61,
+              "val_log_loss": 0.08044290665382263,
+              "seconds": 6.13
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 117
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 13.16
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 389,
+              "val_log_loss": 0.07996425626047371,
+              "seconds": 18.18
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 162,
+              "val_log_loss": 0.0795404188400442,
+              "seconds": 12.55
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 162
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 31.14
+        }
+      }
+    },
+    {
+      "fold": 13,
+      "test_years": [
+        2013
+      ],
+      "fit_cutoff": "2013-01-31",
+      "train_label_known_by": "2011-01-31",
+      "n_train": 1318378,
+      "n_val": 93796,
+      "n_test": 43480,
+      "train_ids_sha256": "df1df75c6ab5fd39",
+      "val_ids_sha256": "b37596f7370182c5",
+      "test_ids_sha256": "09b06f8246f29114",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.0333253942910195
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.06979644309172746,
+              "seconds": 2.16
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.06977807791030276,
+              "seconds": 2.18
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.06977789507102007,
+              "seconds": 2.18
+            }
+          ],
+          "chosen": {
+            "C": 100.0
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.79
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 171,
+              "val_log_loss": 0.06927946717306363,
+              "seconds": 7.8
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 127,
+              "val_log_loss": 0.06937241999458091,
+              "seconds": 8.44
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 171
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 16.76
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 390,
+              "val_log_loss": 0.06936571157888469,
+              "seconds": 17.6
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 108,
+              "val_log_loss": 0.06906468213645106,
+              "seconds": 10.0
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 108
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 27.97
+        }
+      }
+    },
+    {
+      "fold": 14,
+      "test_years": [
+        2014
+      ],
+      "fit_cutoff": "2014-01-31",
+      "train_label_known_by": "2012-01-31",
+      "n_train": 1366195,
+      "n_val": 90412,
+      "n_test": 44439,
+      "train_ids_sha256": "a643e3f386e84c71",
+      "val_ids_sha256": "29e29860d8626fca",
+      "test_ids_sha256": "954f8556d76166d1",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.03296342545286328
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.06334400543830633,
+              "seconds": 2.07
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.06333573159168752,
+              "seconds": 2.19
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.06333564844809227,
+              "seconds": 2.24
+            }
+          ],
+          "chosen": {
+            "C": 100.0
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.76
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 169,
+              "val_log_loss": 0.06303727375181903,
+              "seconds": 7.98
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 107,
+              "val_log_loss": 0.06304091055843786,
+              "seconds": 7.92
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 169
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 16.45
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 191,
+              "val_log_loss": 0.06314064889644189,
+              "seconds": 10.55
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 97,
+              "val_log_loss": 0.06302895037552611,
+              "seconds": 9.49
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 97
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 20.41
+        }
+      }
+    },
+    {
+      "fold": 15,
+      "test_years": [
+        2015
+      ],
+      "fit_cutoff": "2015-01-30",
+      "train_label_known_by": "2013-01-30",
+      "n_train": 1408416,
+      "n_val": 91668,
+      "n_test": 44999,
+      "train_ids_sha256": "4d02c95e9927c797",
+      "val_ids_sha256": "0f1dceda5b473730",
+      "test_ids_sha256": "b86f8a401aa98684",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.032636285986323656
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.04781159308907601,
+              "seconds": 2.03
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.047802286325428926,
+              "seconds": 1.99
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.04780219459979131,
+              "seconds": 2.02
+            }
+          ],
+          "chosen": {
+            "C": 100.0
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.32
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 191,
+              "val_log_loss": 0.0471127938733436,
+              "seconds": 8.34
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 120,
+              "val_log_loss": 0.04698168670945671,
+              "seconds": 8.17
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 120
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 17.05
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 269,
+              "val_log_loss": 0.04729947265853342,
+              "seconds": 13.39
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 120,
+              "val_log_loss": 0.0471424964359764,
+              "seconds": 10.58
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 120
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 24.35
+        }
+      }
+    },
+    {
+      "fold": 16,
+      "test_years": [
+        2016
+      ],
+      "fit_cutoff": "2016-01-29",
+      "train_label_known_by": "2014-01-29",
+      "n_train": 1452966,
+      "n_val": 91678,
+      "n_test": 43781,
+      "train_ids_sha256": "51d255328ae27837",
+      "val_ids_sha256": "dbaf3a9f1d8baa29",
+      "test_ids_sha256": "198985037abe62ea",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.03220066250644371
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.038511230669163454,
+              "seconds": 2.01
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.0384935560686673,
+              "seconds": 2.07
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.03849337999839945,
+              "seconds": 2.14
+            }
+          ],
+          "chosen": {
+            "C": 100.0
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.47
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 178,
+              "val_log_loss": 0.03613728348127372,
+              "seconds": 8.1
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 120,
+              "val_log_loss": 0.03617740951521433,
+              "seconds": 8.43
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 178
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 17.08
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 337,
+              "val_log_loss": 0.036403829606488775,
+              "seconds": 15.82
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 133,
+              "val_log_loss": 0.03612485842966073,
+              "seconds": 11.19
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 133
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 27.38
+        }
+      }
+    },
+    {
+      "fold": 17,
+      "test_years": [
+        2017
+      ],
+      "fit_cutoff": "2017-01-31",
+      "train_label_known_by": "2015-01-31",
+      "n_train": 1500084,
+      "n_val": 89519,
+      "n_test": 42923,
+      "train_ids_sha256": "717410702a1f23ec",
+      "val_ids_sha256": "e226837d2c865cb4",
+      "test_ids_sha256": "39ee0a01cb8394e9",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.03148721572444228
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.05067078854375196,
+              "seconds": 2.11
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.050665815586088,
+              "seconds": 2.12
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.05066576497462749,
+              "seconds": 2.12
+            }
+          ],
+          "chosen": {
+            "C": 100.0
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.63
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 109,
+              "val_log_loss": 0.048351852714080226,
+              "seconds": 6.15
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 80,
+              "val_log_loss": 0.048781394125084906,
+              "seconds": 6.81
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 109
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 13.41
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 158,
+              "val_log_loss": 0.04836900888387634,
+              "seconds": 10.08
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 103,
+              "val_log_loss": 0.04804104257043447,
+              "seconds": 9.96
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 103
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 20.4
+        }
+      }
+    },
+    {
+      "fold": 18,
+      "test_years": [
+        2018
+      ],
+      "fit_cutoff": "2018-01-31",
+      "train_label_known_by": "2016-01-31",
+      "n_train": 1544644,
+      "n_val": 88617,
+      "n_test": 42915,
+      "train_ids_sha256": "998edc3a9ce261b0",
+      "val_ids_sha256": "7fc8c4a90e9780af",
+      "test_ids_sha256": "3e92f2834635691d",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.0309148704071162
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.054020282334830895,
+              "seconds": 1.99
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.05402805893150553,
+              "seconds": 1.96
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.05402814017864483,
+              "seconds": 2.01
+            }
+          ],
+          "chosen": {
+            "C": 0.01
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.22
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 78,
+              "val_log_loss": 0.05324341454000629,
+              "seconds": 5.16
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 78,
+              "val_log_loss": 0.053501050075302335,
+              "seconds": 6.58
+            }
+          ],
+          "chosen": {
+            "num_leaves": 15,
+            "best_iteration": 78
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 12.16
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 122,
+              "val_log_loss": 0.05296955238034405,
+              "seconds": 8.15
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 79,
+              "val_log_loss": 0.05282396495756373,
+              "seconds": 9.12
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 79
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 17.62
+        }
+      }
+    },
+    {
+      "fold": 19,
+      "test_years": [
+        2019
+      ],
+      "fit_cutoff": "2019-01-31",
+      "train_label_known_by": "2017-01-31",
+      "n_train": 1589603,
+      "n_val": 86548,
+      "n_test": 42939,
+      "train_ids_sha256": "5dffbfa760abbf82",
+      "val_ids_sha256": "a29449debc7f4b33",
+      "test_ids_sha256": "fa7c1d93aa09a1af",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.03055572331222116
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.0474373186271624,
+              "seconds": 2.03
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.04745248139292558,
+              "seconds": 2.02
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.047452635267838696,
+              "seconds": 2.04
+            }
+          ],
+          "chosen": {
+            "C": 0.01
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.37
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 112,
+              "val_log_loss": 0.046750418772382854,
+              "seconds": 6.05
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 106,
+              "val_log_loss": 0.04673667777553928,
+              "seconds": 7.84
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 106
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 14.4
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 123,
+              "val_log_loss": 0.04679225150673013,
+              "seconds": 8.09
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 100,
+              "val_log_loss": 0.04633127328673897,
+              "seconds": 9.4
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 100
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 17.86
+        }
+      }
+    },
+    {
+      "fold": 20,
+      "test_years": [
+        2020
+      ],
+      "fit_cutoff": "2020-01-31",
+      "train_label_known_by": "2018-01-31",
+      "n_train": 1633261,
+      "n_val": 85821,
+      "n_test": 43029,
+      "train_ids_sha256": "6a3295a4cab40b23",
+      "val_ids_sha256": "7678a03227aa692e",
+      "test_ids_sha256": "ec2613dcbffc8372",
+      "models": {
+        "base_rate": {
+          "trials": [],
+          "chosen": {
+            "training_event_rate": 0.03007386445040661
+          },
+          "fit_predict_seconds": 0.0
+        },
+        "logit": {
+          "trials": [
+            {
+              "C": 0.01,
+              "val_log_loss": 0.05029714798735005,
+              "seconds": 2.04
+            },
+            {
+              "C": 1.0,
+              "val_log_loss": 0.05032828595299537,
+              "seconds": 2.0
+            },
+            {
+              "C": 100.0,
+              "val_log_loss": 0.05032860255139772,
+              "seconds": 2.12
+            }
+          ],
+          "chosen": {
+            "C": 0.01
+          },
+          "training_rows_used": 400000,
+          "fit_predict_seconds": 6.43
+        },
+        "lightgbm": {
+          "trials": [
+            {
+              "num_leaves": 15,
+              "best_iteration": 87,
+              "val_log_loss": 0.04847971279704118,
+              "seconds": 5.35
+            },
+            {
+              "num_leaves": 63,
+              "best_iteration": 76,
+              "val_log_loss": 0.048424315161410596,
+              "seconds": 6.54
+            }
+          ],
+          "chosen": {
+            "num_leaves": 63,
+            "best_iteration": 76
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 12.35
+        },
+        "xgboost": {
+          "trials": [
+            {
+              "max_depth": 3,
+              "best_iteration": 236,
+              "val_log_loss": 0.048457300350627064,
+              "seconds": 12.56
+            },
+            {
+              "max_depth": 6,
+              "best_iteration": 111,
+              "val_log_loss": 0.04803818163420028,
+              "seconds": 10.05
+            }
+          ],
+          "chosen": {
+            "max_depth": 6,
+            "best_iteration": 111
+          },
+          "training_rows_used": 500000,
+          "fit_predict_seconds": 22.99
+        }
+      }
+    }
+  ],
+  "n_predictions": 4363856,
+  "total_seconds": 1040.2,
+  "environment": {
+    "python": "3.12.13",
+    "platform": "Linux-6.12.90+-x86_64-with-glibc2.35",
+    "packages": {
+      "pandas": "2.2.3",
+      "numpy": "2.4.6",
+      "pyarrow": "25.0.1",
+      "scipy": "1.17.1",
+      "scikit-learn": "1.9.0",
+      "lightgbm": "4.7.0",
+      "xgboost": "3.2.0",
+      "catboost": "1.2.10",
+      "joblib": "1.6.0",
+      "plotly": "7.0.0",
+      "streamlit": "1.64.0"
+    },
+    "n_jobs": 2
+  }
+}

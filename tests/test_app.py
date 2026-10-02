@@ -17,6 +17,7 @@ from test_sweeps import AUDIT_LONG
 APP = Path(__file__).resolve().parents[1] / "app"
 VIEWS = ["views/home.py", "views/comparison.py", "views/results.py", "views/custom_test.py",
          "views/misses.py", "views/timeline.py", "views/tweaks.py"]
+PUBLIC_VIEWS = ["views/home.py", "views/comparison.py", "views/custom_test.py"]
 
 
 def point_results_at(monkeypatch, root: Path):
@@ -62,11 +63,19 @@ def test_pages_load_with_results(filled, monkeypatch, view):
     assert not at.exception, at.exception
 
 
-@pytest.mark.parametrize("view", VIEWS)
+@pytest.mark.parametrize("view", PUBLIC_VIEWS)
 def test_pages_load_with_no_results(tmp_path, monkeypatch, view):
     point_results_at(monkeypatch, tmp_path)
     at = open_page(view)
     assert not at.exception, at.exception
+
+
+def test_public_view_hides_local_compute_controls(tmp_path, monkeypatch):
+    point_results_at(monkeypatch, tmp_path)
+    at = open_page("views/home.py")
+    assert not at.exception
+    assert "Start run" not in [button.label for button in at.sidebar.button]
+    assert any("Public view" in caption.value for caption in at.sidebar.caption)
 
 
 def test_sidebar_offers_runs_reports_and_results_choice(filled, monkeypatch):
@@ -74,7 +83,7 @@ def test_sidebar_offers_runs_reports_and_results_choice(filled, monkeypatch):
     at = open_page("views/home.py")
     labels = [b.label for b in at.sidebar.button]
     assert "Start run" in labels
-    assert any(s.label == "Results from" for s in at.sidebar.selectbox)
+    assert any(s.label == "Volatility study" for s in at.sidebar.selectbox)
     assert any("Build a report" in m.value for m in at.sidebar.markdown)
 
 
@@ -116,9 +125,22 @@ def test_dashboard_bundle_excludes_forecasts_and_fitted_models(filled, tmp_path)
     assert export_run(run, tmp_path) == exported
 
 
+def test_dashboard_bundle_accepts_summary_only_sensitivity(tmp_path):
+    run = tmp_path / "source" / "saved-delisting-sensitivity"
+    report = run / "report"
+    report.mkdir(parents=True)
+    (run / "manifest.json").write_text(json.dumps({"run_id": run.name, "task": "delisting"}))
+    for name in ("report_info.json", "model_summary.json", "comparisons.json"):
+        (report / name).write_text("[]")
+    exported = export_run(run, tmp_path / "bundle")
+    assert (exported / "report" / "comparisons.json").exists()
+    assert not (exported / "report" / "monthly_metrics.parquet").exists()
+
+
 def test_tweaks_page_opens_every_sweep_kind(filled, monkeypatch):
     """Each sweep kind draws different charts (some twice); every one must open without errors."""
     point_results_at(monkeypatch, filled)
+    monkeypatch.setenv("P3_SHOW_DEVELOPMENT_RUNS", "1")
     at = open_page("views/tweaks.py")
     box = lambda: next(s for s in at.selectbox if s.label == "Sweep")
     labels = list(box().options)
@@ -131,6 +153,24 @@ def test_tweaks_page_opens_every_sweep_kind(filled, monkeypatch):
 def test_landing_page_has_the_button_and_no_data_source_names(filled, monkeypatch):
     point_results_at(monkeypatch, filled)
     at = open_page("views/home.py")
-    assert any("See results" in b.label for b in at.button)
+    assert any("Open model benchmark" in b.label for b in at.button)
     text = " ".join(m.value for m in at.markdown)
-    assert "Stock Swing Forecast" in text and "WRDS" not in text and "CRSP" not in text
+    assert "Equity ML Forecast Lab" in text and "WRDS" not in text and "CRSP" not in text
+
+
+def test_detailed_run_selector_filters_out_other_tasks(tmp_path, monkeypatch):
+    point_results_at(monkeypatch, tmp_path)
+    import _common
+
+    for task in ("volatility", "returns"):
+        run = tmp_path / "runs" / f"saved-{task}"
+        (run / "report").mkdir(parents=True)
+        (run / "report" / "report_info.json").write_text("{}")
+        (run / "manifest.json").write_text(json.dumps({
+            "run_id": f"saved-{task}", "task": task, "run_type": "exploratory",
+            "quick": False, "evidence": True, "test_years": [2020],
+            "n_predictions": 1, "created_utc": "2026-01-01T00:00:00+00:00",
+        }))
+
+    assert {run["task"] for run in _common.runs()} == {"volatility", "returns"}
+    assert [run["run_id"] for run in _common.runs("volatility")] == ["saved-volatility"]

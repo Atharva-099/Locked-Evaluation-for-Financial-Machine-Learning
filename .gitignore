@@ -31,3 +31,6 @@ results/runs/**/models/
 .env.*
 secrets.*
 .DS_Store
+
+# Local LaTeX build products; source and the final reviewed PDF are staged explicitly.
+paper/icml/build/

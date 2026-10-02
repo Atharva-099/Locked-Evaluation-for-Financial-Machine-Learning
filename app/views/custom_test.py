@@ -33,7 +33,7 @@ LABELS = {
 }
 
 
-st.title("Test your own model")
+st.title("Evaluate External Predictions")
 st.caption("Evaluate forecasts from your model on your dataset. This page scores predictions; it does not execute uploaded model code.")
 
 task = st.segmented_control(
