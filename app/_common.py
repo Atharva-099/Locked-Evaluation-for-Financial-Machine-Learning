@@ -80,10 +80,30 @@ def has_detailed_pages() -> bool:
     return has_training_panel() and bool(detailed_volatility_runs())
 
 
+_AGGREGATE_VOLATILITY_FILES = {
+    "model_summary.json", "comparisons.json", "monthly_losses.parquet",
+    "monthly_series.parquet", "by_year.parquet", "slices.parquet",
+    "calibration.parquet", "rank_skill.parquet", "importance.parquet",
+}
+
+
+def aggregate_volatility_runs() -> list[dict]:
+    """Volatility reports that can power public diagnostics without row data."""
+    return [
+        run for run in report_catalog()
+        if run["task"] == "volatility"
+        and all((run["report"] / name).exists() for name in _AGGREGATE_VOLATILITY_FILES)
+    ]
+
+
+def has_aggregate_volatility_pages() -> bool:
+    return bool(aggregate_volatility_runs())
+
+
 def has_sweep_pages() -> bool:
-    """Expose the local robustness workspace when any sweep artifact exists."""
-    root = config.RESULTS_DIR / "sweeps"
-    return root.exists() and any(root.glob("*/manifest.json"))
+    """Expose robustness results from local or deployment-safe artifacts."""
+    roots = (config.RESULTS_DIR / "sweeps", config.DASHBOARD_DATA_DIR / "sweeps")
+    return any(root.exists() and any(root.glob("*/manifest.json")) for root in roots)
 
 
 def _read(p: Path) -> dict:
@@ -209,17 +229,20 @@ def catalog_label(run: dict) -> str:
 
 
 def sweeps() -> list[dict]:
-    root = config.RESULTS_DIR / "sweeps"
-    out = []
-    if not root.exists():
-        return out
-    for d in sorted(root.glob("2*"), reverse=True):
-        if (d / "manifest.json").exists():
+    roots = (config.RESULTS_DIR / "sweeps", config.DASHBOARD_DATA_DIR / "sweeps")
+    out, seen = [], set()
+    for root in roots:
+        if not root.exists():
+            continue
+        for d in sorted(root.glob("2*"), reverse=True):
+            if not (d / "manifest.json").exists() or d.name in seen:
+                continue
             m = _read(d / "manifest.json")
             size = m.get("size", "standard") or "standard"
             if size == "demo" and not show_development_runs():
                 continue
             out.append({"path": d, "kind": m["kind"], "size": size, "trials": m["n_trials"], "created": m["created_utc"][:16]})
+            seen.add(d.name)
     return out
 
 
@@ -248,6 +271,65 @@ def need_run() -> dict:
         st.info("No results yet. Start a run from the sidebar, then build its report.")
         st.stop()
     return r
+
+
+def current_aggregate_volatility_run() -> dict | None:
+    reported = aggregate_volatility_runs()
+    if not reported:
+        return None
+    chosen = st.session_state.get("aggregate_run_id")
+    return next(
+        (run for run in reported if run["run_id"] == chosen),
+        next((run for run in reported if run["type"] == "locked"), reported[0]),
+    )
+
+
+def need_aggregate_volatility_run() -> dict:
+    run = current_aggregate_volatility_run()
+    if run is None:
+        st.info("No aggregate volatility report is available in this deployment.")
+        st.stop()
+    return run
+
+
+def select_aggregate_volatility_run() -> dict:
+    """Render the shared exploratory/locked selector used by hosted pages."""
+    reported = aggregate_volatility_runs()
+    if not reported:
+        st.info("No aggregate volatility report is available in this deployment.")
+        st.stop()
+    ids = [run["run_id"] for run in reported]
+    current = current_aggregate_volatility_run()
+    if st.session_state.get("aggregate_run_id") not in ids:
+        st.session_state["aggregate_run_id"] = current["run_id"]
+    chosen = st.selectbox(
+        "Volatility study",
+        ids,
+        format_func=lambda run_id: catalog_label(next(run for run in reported if run["run_id"] == run_id)),
+        key="aggregate_run_id",
+    )
+    return next(run for run in reported if run["run_id"] == chosen)
+
+
+@st.cache_data(show_spinner=False)
+def aggregate_volatility_report(path: str, stamp: float) -> dict:
+    directory = Path(path)
+    return {
+        "summary": pd.read_json(directory / "model_summary.json"),
+        "comparisons": pd.read_json(directory / "comparisons.json"),
+        "monthly": pd.read_parquet(directory / "monthly_losses.parquet"),
+        "series": pd.read_parquet(directory / "monthly_series.parquet").set_index("yyyymm"),
+        "by_year": pd.read_parquet(directory / "by_year.parquet"),
+        "slices": pd.read_parquet(directory / "slices.parquet"),
+        "calibration": pd.read_parquet(directory / "calibration.parquet"),
+        "skill": pd.read_parquet(directory / "rank_skill.parquet"),
+        "importance": pd.read_parquet(directory / "importance.parquet"),
+    }
+
+
+def aggregate_report_for(run: dict) -> dict:
+    report_dir = run["report"]
+    return aggregate_volatility_report(str(report_dir), mtime(report_dir))
 
 
 def badge(r: dict) -> None:

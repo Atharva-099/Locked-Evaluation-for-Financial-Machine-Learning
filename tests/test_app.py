@@ -3,11 +3,12 @@ import json
 import sys
 from pathlib import Path
 
+import pandas as pd
 import pytest
 from streamlit.testing.v1 import AppTest
 
 from p3_modellab import config, runner, sweeps
-from p3_modellab.dashboard_bundle import export_run
+from p3_modellab.dashboard_bundle import export_run, export_sweep
 from p3_modellab.report import build_report
 from p3_modellab.tasks import volatility
 from test_models_runner import AUDIT, synthetic_panel
@@ -18,6 +19,8 @@ APP = Path(__file__).resolve().parents[1] / "app"
 VIEWS = ["views/home.py", "views/comparison.py", "views/results.py", "views/custom_test.py",
          "views/misses.py", "views/timeline.py", "views/tweaks.py"]
 PUBLIC_VIEWS = ["views/home.py", "views/comparison.py", "views/custom_test.py"]
+PUBLIC_AGGREGATE_VIEWS = ["views/aggregate_results.py", "views/aggregate_misses.py",
+                          "views/aggregate_timeline.py", "views/tweaks.py"]
 
 
 def point_results_at(monkeypatch, root: Path):
@@ -56,6 +59,20 @@ def filled(tmp_path_factory):
     mp.undo()
 
 
+@pytest.fixture(scope="module")
+def public_bundle(filled, tmp_path_factory):
+    root = tmp_path_factory.mktemp("public-dashboard")
+    source_run = next(path.parent.parent for path in (filled / "runs").glob("*/report/report_info.json"))
+    export_run(source_run, root / "dashboard_data")
+    source_sweep = next(path.parent for path in (filled / "sweeps").glob("*/manifest.json"))
+    exported_sweep = export_sweep(source_sweep, root / "dashboard_data")
+    manifest_path = exported_sweep / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["size"] = "standard"
+    manifest_path.write_text(json.dumps(manifest))
+    return root
+
+
 @pytest.mark.parametrize("view", VIEWS)
 def test_pages_load_with_results(filled, monkeypatch, view):
     point_results_at(monkeypatch, filled)
@@ -66,6 +83,13 @@ def test_pages_load_with_results(filled, monkeypatch, view):
 @pytest.mark.parametrize("view", PUBLIC_VIEWS)
 def test_pages_load_with_no_results(tmp_path, monkeypatch, view):
     point_results_at(monkeypatch, tmp_path)
+    at = open_page(view)
+    assert not at.exception, at.exception
+
+
+@pytest.mark.parametrize("view", PUBLIC_AGGREGATE_VIEWS)
+def test_public_aggregate_pages_load(public_bundle, monkeypatch, view):
+    point_results_at(monkeypatch, public_bundle)
     at = open_page(view)
     assert not at.exception, at.exception
 
@@ -120,9 +144,21 @@ def test_dashboard_bundle_excludes_forecasts_and_fitted_models(filled, tmp_path)
     exported = export_run(run, tmp_path)
     assert (exported / "manifest.json").exists()
     assert (exported / "report" / "model_summary.json").exists()
+    assert (exported / "report" / "monthly_series.parquet").exists()
+    assert (exported / "report" / "slices.parquet").exists()
     assert not (exported / "predictions.parquet").exists()
     assert not (exported / "models").exists()
+    columns = set(pd.read_parquet(exported / "report" / "monthly_series.parquet").columns)
+    assert not columns.intersection({"permno", "ticker", "cusip", "comnam", "row_id"})
     assert export_run(run, tmp_path) == exported
+
+
+def test_dashboard_bundle_exports_aggregate_sweep(filled, tmp_path):
+    source = next(path.parent for path in (filled / "sweeps").glob("*/manifest.json"))
+    exported = export_sweep(source, tmp_path)
+    assert (exported / "manifest.json").exists()
+    assert (exported / "trials.parquet").exists()
+    assert (exported / "monthly.parquet").exists()
 
 
 def test_dashboard_bundle_accepts_summary_only_sensitivity(tmp_path):

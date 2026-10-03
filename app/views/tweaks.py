@@ -1,6 +1,6 @@
 import streamlit as st
 
-from _common import NICE, chart, confirm, start_job, stats, sweeps
+from _common import NICE, chart, confirm, has_training_panel, start_job, stats, sweeps
 from p3_modellab import sweep_plots
 
 st.title("Robustness Lab")
@@ -90,12 +90,15 @@ else:
             with tab:
                 chart(fig)
 
-st.divider()
-st.subheader("Start a sweep")
-c1, c2 = st.columns(2)
-kind = c1.selectbox("Kind", list(WHAT), format_func=WHAT.get)
-size = c2.segmented_control("Size", ["demo", "standard"], default="demo",
-                            format_func={"demo": "Demo (seconds)", "standard": "Standard (real results)"}.get) or "demo"
-if confirm("sweep_demo" if size == "demo" else f"sweep_{kind}") and st.button("Start sweep"):
-    job = start_job(f"{kind} sweep ({size})", ["sweep", "--kind", kind] + (["--demo"] if size == "demo" else []))
-    st.toast(f"Started: {job['command']}")
+if has_training_panel():
+    st.divider()
+    st.subheader("Start a sweep")
+    c1, c2 = st.columns(2)
+    kind = c1.selectbox("Kind", list(WHAT), format_func=WHAT.get)
+    size = c2.segmented_control("Size", ["demo", "standard"], default="demo",
+                                format_func={"demo": "Demo (seconds)", "standard": "Standard (real results)"}.get) or "demo"
+    if confirm("sweep_demo" if size == "demo" else f"sweep_{kind}") and st.button("Start sweep"):
+        job = start_job(f"{kind} sweep ({size})", ["sweep", "--kind", kind] + (["--demo"] if size == "demo" else []))
+        st.toast(f"Started: {job['command']}")
+else:
+    st.caption("Hosted view: these charts read completed sweep outputs and do not fit models on the Streamlit server.")

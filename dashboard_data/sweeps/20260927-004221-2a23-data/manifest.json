@@ -1,0 +1,92 @@
+{
+  "sweep_id": "20260927-004221-2a23-data",
+  "kind": "data",
+  "created_utc": "2026-09-26T19:20:59+00:00",
+  "evidence": "exploratory: evaluation years have been used by earlier exploratory runs",
+  "rule": "every choice uses validation rows only; the evaluation score is recorded for every point but never used to choose",
+  "firm_percent": 25,
+  "eval_years": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019
+  ],
+  "validation_months": 24,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "spec": {
+    "train_years": [
+      2,
+      5,
+      10,
+      20
+    ],
+    "firm_percent": [
+      10,
+      25,
+      50,
+      100
+    ],
+    "models": [
+      "har",
+      "ridge",
+      "lightgbm"
+    ]
+  },
+  "split": {
+    "fit_cutoff": "2015-01-30",
+    "train_labels_known_by": "2013-01-30",
+    "n_train_all_firms": 1443139,
+    "n_train": 355658,
+    "n_val": 22069,
+    "n_eval": 53524,
+    "eval_months": 60,
+    "eval_firms": 1187
+  },
+  "features": [
+    "log_rv_d",
+    "log_rv_w",
+    "log_rv_m",
+    "log_rv_q",
+    "log_rv_y",
+    "ret_m",
+    "ret_q",
+    "log_mcap",
+    "log_price",
+    "log_turnover_m",
+    "log_amihud_m",
+    "frac_valid_m",
+    "mkt_log_rv_m"
+  ],
+  "code_hash": "418f8f475b4573ee",
+  "code_changed_during_run": false,
+  "panel": {
+    "source": "results/panels",
+    "code_hash": "be81124516785453",
+    "created_utc": "2026-09-26T14:07:58+00:00"
+  },
+  "audit_created_utc": "2026-09-25T20:30:30+00:00",
+  "n_trials": 130,
+  "total_seconds": 518.5,
+  "environment": {
+    "python": "3.11.8",
+    "platform": "macOS-27.0-arm64-arm-64bit",
+    "packages": {
+      "pandas": "2.2.3",
+      "numpy": "2.4.6",
+      "pyarrow": "25.0.1",
+      "scipy": "1.17.1",
+      "scikit-learn": "1.9.0",
+      "lightgbm": "4.7.0",
+      "joblib": "1.6.0",
+      "plotly": "7.0.0",
+      "streamlit": "1.64.0"
+    },
+    "n_jobs": 5
+  },
+  "reference_note": "HAR and persistence fitted on the same fixed data; diff_vs_har is paired by month with a 12-month block bootstrap interval"
+}
