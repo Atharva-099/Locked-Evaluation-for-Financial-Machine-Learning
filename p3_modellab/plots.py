@@ -227,10 +227,14 @@ def loss_timeline(ml: pd.DataFrame, selected: int | None = None, title: str | No
 
 def _hover_extra(series: pd.DataFrame, scope: str) -> list[str]:
     if scope == "stock":
+        if "share_price" not in series.columns:
+            return [""] * len(series)
         return [f"share price ${p:,.2f}" if pd.notna(p) else "" for p in series["share_price"]]
-    if not {"market_vol", "mood"}.issubset(series.columns):
+    if {"market_vol", "mood", "stocks"}.issubset(series.columns):
+        return [f"market swing {v:.0%} ({str(m).split(' (')[0]})<br>{n:,} stocks" for v, m, n in zip(series["market_vol"], series["mood"], series["stocks"])]
+    if "stocks" in series.columns:
         return [f"{int(n):,} stocks" for n in series["stocks"]]
-    return [f"market swing {v:.0%} ({str(m).split(' (')[0]})<br>{n:,} stocks" for v, m, n in zip(series["market_vol"], series["mood"], series["stocks"])]
+    return [""] * len(series)
 
 
 def main_chart(series: pd.DataFrame, models: list[str], view: str = "2D", scope: str = "all", title: str = "") -> go.Figure:

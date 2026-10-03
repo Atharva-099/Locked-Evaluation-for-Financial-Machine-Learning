@@ -78,6 +78,16 @@ def test_scramble_keeps_values_within_their_month():
     assert not s["a"].equals(X["a"])
 
 
+@pytest.mark.parametrize("view", ["2D", "3D"])
+def test_aggregate_chart_allows_optional_hover_metadata(view):
+    series = pd.DataFrame(
+        {"actual": [0.2, 0.3], "har": [0.18, 0.28]},
+        index=pd.Index([202001, 202002], name="yyyymm"),
+    )
+    figure = plots.main_chart(series, ["har"], view=view, scope="all")
+    assert len(figure.data) > 0
+
+
 def test_month_level_inputs_are_swapped_between_months():
     from p3_modellab.importance import scramble
     months = np.repeat([1, 2, 3, 4, 5, 6], 10)
